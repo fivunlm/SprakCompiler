@@ -159,7 +159,7 @@ void Inf_Not();
 
 void None();
 
-void characterNotValid();
+void CharacterNotValid();
 
 void Init_Concatenation();
 
