@@ -36,14 +36,20 @@
             <option name="com.jetbrains.cidr.lang.util.OCDeclarationKind" value="DeallocMethod" />
           </class>
         </Objective-C-extensions>
+        <XML>
+          <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
+        </XML>
         <codeStyleSettings language="ObjectiveC">
           <option name="BRACE_STYLE" value="2" />
           <option name="CLASS_BRACE_STYLE" value="2" />
+          <option name="SPACE_WITHIN_PARENTHESES" value="true" />
           <option name="SPACE_WITHIN_IF_PARENTHESES" value="true" />
           <option name="SPACE_WITHIN_WHILE_PARENTHESES" value="true" />
           <option name="SPACE_WITHIN_FOR_PARENTHESES" value="true" />
           <option name="SPACE_WITHIN_CATCH_PARENTHESES" value="true" />
           <option name="SPACE_WITHIN_SWITCH_PARENTHESES" value="true" />
+          <option name="SPACE_WITHIN_CAST_PARENTHESES" value="true" />
+          <option name="SPACE_WITHIN_ARRAY_INITIALIZER_BRACES" value="true" />
         </codeStyleSettings>
       </value>
     </option>

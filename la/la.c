@@ -1,49 +1,47 @@
 #include "la.h"
 
-/* -------------------------------------------------------------------------- */
-/*                            DEFINICION FUNCIONES                            */
-/* -------------------------------------------------------------------------- */
+// TODO: La tabla de simbolos contiene las palabras reservadas creo que esto no es una practica recomendada
 
 /* -------------------------------------------------------------------------- */
 /*                             VARIABLES GLOBALES                             */
 /* -------------------------------------------------------------------------- */
 
-FILE * input;          // ARCHIVO ENTRADA.
+FILE * inputFile;          // Archivo de entrada.
 
-//Ficheros Temporales
-FILE * tokens;         //Archivo de Tokens
-FILE * tos;            //Archivo de TOS
+// Ficheros Temporales
+FILE * tokenFile;         // Archivo de Tokens
+FILE * tosFile;           // Archivo de TOS ( Table Of Symbols )
 
-char caracter;          // CARACTER LEIDO.
-int NroToken = -1;          // Valor que devuelve el yylex.
-int TamToken = 0;          // Se utiliza para validar los tamaños de los ID y CteSTR.
-char token[1000];     // Almacena el token armado.
-int cteStrAbierta;    // Para validar que las ctes string esten bien formadas. Por ahora no la estamos usando.
-int comAbierto;       // Para validar que los comentarios son cerrados.
-int error = 0;        // para identificar si hubo o no error.
-int nroLinea = 1;          // Para identificar en que línea se produjo el error.
-int ptoInicio = 0;      // Para completar el nro segun corresponda EJ:.36 => 0.36
-int TOStop = 0;          // Índice de la TOS
+char readedChar;           // Caracter leido.
+int tokenNumber = -1;        // Valor que devuelve el yylex.
+int tokenSize = 0;         // Se utiliza para validar los tamaños de los ID y ConstantSTR.
+char token[1000];         // Almacena el token armado.
+int openStringConstant;        // Para validar que las ctes string esten bien formadas. Por ahora no la estamos usando.
+int openComment;           // Para validar que los comentarios son cerrados.
+int error = 0;            // para identificar si hubo o no error.
+int nroLinea = 1;         // Para identificar en que línea se produjo el error.
+int ptoInicio = 0;        // Para completar el nro segun corresponda EJ:.36 => 0.36
+int symbolTableIndex = 0;           // Índice de la TOS
 
 //Variable global provisoria
 
 int yylval;
 
 /* IDENTIFICADORES ---------------------------------------------------------- */
-void Iniciar_ID()
+void Init_ID()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
     //Posible ID
-    NroToken = ID;
+    tokenNumber = ID;
 }
 
-void Agregar_ID()
+void Add_ID()
 {
     if ( strlen( token ) < MAXLONG )
     {
-        token[++TamToken] = caracter;
+        token[++tokenSize] = readedChar;
     }
     else
     {
@@ -57,134 +55,134 @@ void Inf_ID()
 {
     if ( error == 0 )
     {
-        switch ( esPalabraReservada())
+        switch ( getReserverWordNumber() )
         {
             case 0:
-                NroToken = ID;
-                yylval = insertarTOS(); //TOS
+                tokenNumber = ID;
+                yylval = insertInTOS(); //TOS
                 break;
             case 1:
-                NroToken = PR_MAIN;
+                tokenNumber = PR_MAIN;
                 yylval = 1;
                 break;
             case 2:
-                NroToken = PR_VAR;
+                tokenNumber = PR_VAR;
                 yylval = 2;
                 break;
             case 3:
-                NroToken = PR_AS;
+                tokenNumber = PR_AS;
                 yylval = 3;
                 break;
             case 4:
-                NroToken = PR_ENDVAR;
+                tokenNumber = PR_ENDVAR;
                 yylval = 4;
                 break;
             case 5:
-                NroToken = PR_IF;
+                tokenNumber = PR_IF;
                 yylval = 5;
                 break;
             case 6:
-                NroToken = PR_THEN;
+                tokenNumber = PR_THEN;
                 yylval = 6;
                 break;
             case 7:
-                NroToken = PR_ELSE;
+                tokenNumber = PR_ELSE;
                 yylval = 7;
                 break;
             case 8:
-                NroToken = PR_FI;
+                tokenNumber = PR_FI;
                 yylval = 8;
                 break;
             case 9:
-                NroToken = PR_FOR;
+                tokenNumber = PR_FOR;
                 yylval = 9;
                 break;
             case 10:
-                NroToken = PR_TO;
+                tokenNumber = PR_TO;
                 yylval = 10;
                 break;
             case 11:
-                NroToken = PR_STEP;
+                tokenNumber = PR_STEP;
                 yylval = 11;
                 break;
             case 12:
-                NroToken = PR_ROF;
+                tokenNumber = PR_ROF;
                 yylval = 12;
                 break;
             case 13:
-                NroToken = PR_DO;
+                tokenNumber = PR_DO;
                 yylval = 13;
                 break;
             case 14:
-                NroToken = PR_WHILE;
+                tokenNumber = PR_WHILE;
                 yylval = 14;
                 break;
             case 15:
-                NroToken = PR_WPRINT;
+                tokenNumber = PR_WPRINT;
                 yylval = 15;
                 break;
             case 16:
-                NroToken = PR_FILTERC;
+                tokenNumber = PR_FILTERC;
                 yylval = 16;
                 break;
             case 17:
-                NroToken = PR_INTEGER;
+                tokenNumber = PR_INTEGER;
                 yylval = 17;
                 break;
             case 18:
-                NroToken = PR_FLOAT;
+                tokenNumber = PR_FLOAT;
                 yylval = 18;
                 break;
             case 19:
-                NroToken = PR_STRING;
+                tokenNumber = PR_STRING;
                 yylval = 19;
                 break;
         }
-        ungetc((int) caracter, input );
+        ungetc(( int ) readedChar, inputFile );
     }
     else
     {
-        NroToken = 0;
+        tokenNumber = 0;
     }
 }
 
 /* CONSTANTE NUMERICAS ------------------------------------------------------ */
-void Iniciar_Cte()
+void Init_Constant()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;        //guardamos el primer caracter del ID en la cadena auxiliar
-    TamToken++;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;        //guardamos el primer readedChar del ID en la cadena auxiliar
+    tokenSize++;
     //Posible CTE
-    NroToken = CTE_ENT;
+    tokenNumber = CTE_ENT;
 }
 
-void Iniciar_Cte_Float()
+void Init_Constant_Float()
 {
-    if ( NroToken != CTE_ENT )
+    if ( tokenNumber != CTE_ENT )
     {
-        limpiarToken();
-        TamToken = 0;
+        cleanToken();
+        tokenSize = 0;
     }
 
-    token[TamToken] = caracter;        //guardamos el primer caracter del ID en la cadena auxiliar
-    TamToken++;
+    token[tokenSize] = readedChar;        //guardamos el primer readedChar del ID en la cadena auxiliar
+    tokenSize++;
     //Posible CTE
-    NroToken = CTE_REAL;
+    tokenNumber = CTE_REAL;
 }
 
-void Agregar_Cte()
+void Agregar_Constant()
 {
-    token[TamToken] = caracter;
-    TamToken++;
+    token[tokenSize] = readedChar;
+    tokenSize++;
 }
 
-void Inf_Cte()
+void Inf_Constant()
 {
-    if ( NroToken == CTE_ENT )
+    if ( tokenNumber == CTE_ENT )
     {
         int cte = atoi( token );
-        if ((strlen( token ) > 5) || (cte > USHRT_MAX))
+        if (( strlen( token ) > 5 ) || ( cte > USHRT_MAX ))
         {
             printf( "\n ERROR: # Se excede el rango para un ENTERO. \n" );
             printf( "\n - Analisis Lexico INTERRUMPIDO - \n" );
@@ -192,7 +190,7 @@ void Inf_Cte()
         }
     }
 
-    if ( NroToken == CTE_REAL )
+    if ( tokenNumber == CTE_REAL )
     {
         if ( strcmp( token, "." ) == 0 )
         {
@@ -209,7 +207,7 @@ void Inf_Cte()
                 decimales++;
         }
 
-        if ( decimales > FLT_PREC )
+        if ( decimales > FLOAT_PREC )
         {
             printf( "\n ERROR: # Se excede el rango de presicion para un REAL. \n" );
             printf( "\n - Analisis Lexico INTERRUMPIDO - \n" );
@@ -218,7 +216,7 @@ void Inf_Cte()
 
         double cte = atof( token );
 
-        if ( cte > FLT_MAX )
+        if ( cte > FLOAT_MAX )
         {
             printf( "\n ERROR: # Se excede el rango para un REAL. \n" );
             printf( "\n - Analisis Lexico INTERRUMPIDO - \n" );
@@ -227,26 +225,26 @@ void Inf_Cte()
 
     }
 
-    yylval = insertarTOS(); // TOS
-    ungetc((int) caracter, input );
+    yylval = insertInTOS(); // TOS
+    ungetc(( int ) readedChar, inputFile );
 }
 
 /* CONSTANTE STRING --------------------------------------------------------- */
-void Inciar_CteStr()
+void Init_StringConstant()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    cteStrAbierta++;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    openStringConstant++;
     //Posible CTE_STRING
-    NroToken = CTE_STRING;
+    tokenNumber = CTE_STRING;
 }
 
-void Agregar_CteStr()
+void Add_StringConstant()
 {
     if ( strlen( token ) < MAXLONG )
     {
-        token[++TamToken] = caracter;
+        token[++tokenSize] = readedChar;
     }
     else
     {
@@ -256,69 +254,69 @@ void Agregar_CteStr()
     }
 }
 
-void Inf_CteStr()
+void Inf_StringConstant()
 {
-    token[++TamToken] = caracter;
+    token[++tokenSize] = readedChar;
     if ( error == 0 )
     {
-        NroToken = CTE_STRING;
-        yylval = insertarTOS(); //TOS
-        cteStrAbierta--;
+        tokenNumber = CTE_STRING;
+        yylval = insertInTOS(); //TOS
+        openStringConstant--;
     }
     else
     {
-        NroToken = 0;
-        cteStrAbierta = 0;
+        tokenNumber = 0;
+        openStringConstant = 0;
     }
 }
 
 /* COMENTARIOS -------------------------------------------------------------- */
-void Iniciar_Com()
+void Init_Comment()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_RESTA;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_RESTA;
 }
 
-void Inf_com()
+void Inf_Comment()
 {
-    limpiarToken();
-    comAbierto++;
-    Nada();
-    NroToken = -1;
+    cleanToken();
+    openComment++;
+    None();
+    tokenNumber = -1;
 }
 
-void Agregar_Com()
+void Add_Comment()
 {
-    limpiarToken();
-    Nada();
+    cleanToken();
+    None();
 }
 
-void Fin_Com()
+void Finish_Comment()
 {
-    comAbierto = 0;
-    Nada();
+    openComment = 0;
+    None();
 }
 
 /* SEPARADOR ---------------------------------------------------------------- */
-void Inf_Sep()
+void Inf_Separator()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = SEP_SENT;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = SEP_SENT;
 }
 
 /* NADA --------------------------------------------------------------------- */
-void Nada()
+void None()
 {
-    limpiarToken();
-    TamToken = 0;
+    cleanToken();
+    tokenSize = 0;
 }
 
 /* CARACTER NO VALIDO ------------------------------------------------------- */
-void Caract_No_Val()
+void characterNotValid()
 {
     if ( strcmp( token, "&" ) == 0 )
         printf( "\n - ERROR: Se esperaba & \n" );
@@ -334,250 +332,251 @@ void Caract_No_Val()
 }
 
 /* ASIGNACION --------------------------------------------------------------- */
-void Inf_Asignacion()
+void Inf_Assignment()
 {
-    NroToken = OP_ASIG;
-    ungetc((int) caracter, input ); //Segun Automata
+    tokenNumber = OP_ASIG;
+    ungetc(( int ) readedChar, inputFile ); //Segun Automata
 }
 
 /* SUMA --------------------------------------------------------------------- */
-void Inf_OpSuma()
+void Inf_Addition()
 {
-    NroToken = OP_SUMA;
-    ungetc((int) caracter, input ); //Segun Automata
+    tokenNumber = OP_SUMA;
+    ungetc(( int ) readedChar, inputFile ); //Segun Automata
 }
 
 /* RESTA -------------------------------------------------------------------- */
-void Inf_OpResta()
+void Inf_Minus()
 {
-    NroToken = OP_RESTA;
-    ungetc((int) caracter, input ); //Segun Automata
+    tokenNumber = OP_RESTA;
+    ungetc(( int ) readedChar, inputFile ); //Segun Automata
 }
 
 /* PRODUCTO ----------------------------------------------------------------- */
-void Inf_OpProducto()
+void Inf_Multiply()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_MULTIPLI;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_MULTIPLI;
 }
 
 /* DIVISION ----------------------------------------------------------------- */
-void Inf_OpDivision()
+void Inf_Division()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_DIVISION;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_DIVISION;
 }
 
 /* CONCATENA ---------------------------------------------------------------- */
-void Iniciar_concat()
+void Init_Concatenation()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
     //Posible SUMA
-    NroToken = OP_SUMA;
+    tokenNumber = OP_SUMA;
 }
 
-void Inf_OpConcat()
+void Inf_Concatenation()
 {
-    TamToken++;
-    token[TamToken] = caracter;
-    NroToken = OP_CONCAT;
+    tokenSize++;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_CONCAT;
 
-    //ungetc((int)caracter, input);
+    //ungetc((int)readedChar, inputFile);
 }
 
 /* IGUAL -------------------------------------------------------------------- */
-void Iniciar_Igual()
+void Init_Equal()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
     //Posible ASIG
-    NroToken = OP_ASIG;
+    tokenNumber = OP_ASIG;
 }
 
-void Inf_Igual()
+void Inf_Equal()
 {
-    TamToken++;
-    token[TamToken] = caracter;
-    NroToken = OP_IGUAL;
+    tokenSize++;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_IGUAL;
 }
 
 /* DISTINTO ----------------------------------------------------------------- */
-void Iniciar_Dist()
+void Init_Different()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
+
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
     //Posible MENOR
-    NroToken = OP_MENOR;
+    tokenNumber = OP_MENOR; // TODO: Check this
 }
 
-void Inf_Distinto()
+void Inf_Different()
 {
-    TamToken++;
-    token[TamToken] = caracter;
-    NroToken = OP_DISTINTO;
+    tokenSize++;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_DISTINTO;
 }
 
 /* MENOR -------------------------------------------------------------------- */
-void Inf_Menor()
+void Inf_Less()
 {
-    NroToken = OP_MENOR;
-    ungetc((int) caracter, input );  //Segun Automata
+    tokenNumber = OP_MENOR;
+    ungetc(( int ) readedChar, inputFile );  //Segun Automata
 }
 
 /* MAYOR -------------------------------------------------------------------- */
-void Inf_MayorIgual()
+void Inf_GreatEqual()
 {
-    TamToken++;
-    token[TamToken] = caracter;
-    NroToken = OP_MAYORIGUAL;
+    tokenSize++;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_MAYORIGUAL;
 }
 
 /* MAYORoIGUAL -------------------------------------------------------------- */
-void Iniciar_MayorIgual()
+void Init_MayorIgual()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_MAYOR;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_MAYOR;
 }
 
-void Inf_Mayor()
+void Inf_Great()
 {
-    NroToken = OP_MAYOR;
-    ungetc((int) caracter, input ); //segun automata
+    tokenNumber = OP_MAYOR;
+    ungetc(( int ) readedChar, inputFile ); //segun automata
 }
 
 /* MENORoIGUAL -------------------------------------------------------------- */
-void Inf_MenorIgual()
+void Inf_LessEqual()
 {
-    TamToken++;
-    token[TamToken] = caracter;
-    NroToken = OP_MENORIGUAL;
+    tokenSize++;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_MENORIGUAL;
 }
 
 /* OR  ---------------------------------------------------------------------- */
-void Iniciar_Or()
+void Init_Or()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
 }
 
-void Inf_OpOr()
+void Inf_Or()
 {
-    TamToken++;
-    token[TamToken] = caracter;
-    NroToken = OP_OR;
+    tokenSize++;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_OR;
 }
 
 /* AND ---------------------------------------------------------------------- */
-void Iniciar_And()
+void Init_And()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
 }
 
-void Inf_OpAnd()
+void Inf_And()
 {
-    TamToken++;
-    token[TamToken] = caracter;
-    NroToken = OP_AND;
+    tokenSize++;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_AND;
 }
 
 /* NOT ---------------------------------------------------------------------- */
 void Inf_not()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_NOT;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_NOT;
 }
 
 /* PARENTESIS --------------------------------------------------------------- */
-void Inf_OpParAbre()
+void Inf_OpenParentesis()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_PABRE;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_PABRE;
 }
 
-void Inf_OpParCierra()
+void Inf_ClosingParentesis()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_PCIERRA;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_PCIERRA;
 }
 
 /* LLAVE -------------------------------------------------------------------- */
 void Inf_OpLLAbre()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_LLABRE;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_LLABRE;
 }
 
 void Inf_OpLLCierra()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_LLCIERRA;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_LLCIERRA;
 }
 
 /* CORCHETES ---------------------------------------------------------------- */
-void Inf_OpCorchAbre()
+void Inf_OpenBrace()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_CABRE;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_CABRE;
 }
 
-void Inf_OpCorchCierra()
+void Inf_ClosingBrace()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_CCIERRA;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_CCIERRA;
 }
 
 /* OPERADOR DECLARACION DE TIPO DE VARIABLE --------------------------------- */
-void Inf_OpTipo()
+void Inf_Type()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_TIPO;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_TIPO;
 }
 
 /* SEPARADOR DE UNA LISTA DE VARIALBLES O TIPOS ----------------------------- */
-void Inf_SepLista()
+void Inf_ListSeparator()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = SEP_LISTA;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = SEP_LISTA;
 }
 
 /* GUION ----------------------------- */
-void Inf_Guion()
+void Inf_Undesrcore()
 {
-    limpiarToken();
-    TamToken = 0;
-    token[TamToken] = caracter;
-    NroToken = OP_GUION;
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_GUION;
 }
 /* -------------------------------------------------------------------------- */
 /*                           ESTRUCTURAS ESPECIALES                           */
@@ -600,37 +599,37 @@ void (* proceso[16][27])() =
         {
 //                   0 |            1  |            2  |            3  |            4  |            5  |             6  |            7  |                 8  |            9  |           10  |           11  |           12  |              13  |            14  |               15  |           16  |           17  |           18  |            19  |           20  |           21  |           22  |           23  |           24  |            25  |            26  |
 //                   + |            -  |            *  |            /  |           Let |           Dig |             =  |            <  |                 >  |            &  |            |  |            !  |            "  |               .  |             [  |           	 ]   |            {  | 	         }   |            (  |             )  |            ,  |            _  |            ;  |           tab |           blan|            ent |             :  |
-/*E0*/    {Iniciar_concat, Iniciar_Com,    Inf_OpProducto, Inf_OpDivision, Iniciar_ID,     Iniciar_Cte,    Iniciar_Igual,  Iniciar_Dist,   Iniciar_MayorIgual, Iniciar_And,    Iniciar_Or,     Inf_not,        Inciar_CteStr,  Iniciar_Cte_Float, Inf_OpCorchAbre, Inf_OpCorchCierra, Inf_OpLLAbre,   Inf_OpLLCierra, Inf_OpParAbre,  Inf_OpParCierra, Inf_SepLista,   Inf_Guion,      Inf_Sep,        Nada,           Nada,           Nada,           Inf_OpTipo},
+/*E0*/    { Init_Concatenation, Init_Comment, Inf_Multiply, Inf_Division, Init_ID,     Init_Constant, Init_Equal, Init_Different,   Init_MayorIgual, Init_And,    Init_Or,     Inf_not, Init_StringConstant,  Init_Constant_Float, Inf_OpenBrace, Inf_ClosingBrace, Inf_OpLLAbre,   Inf_OpLLCierra, Inf_OpenParentesis, Inf_ClosingParentesis, Inf_ListSeparator, Inf_Undesrcore, Inf_Separator, None, None, None, Inf_Type },
 /*E1*/
-          {Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Agregar_ID,     Agregar_ID,     Inf_ID,         Inf_ID,         Inf_ID,             Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,            Inf_ID,          Inf_ID,            Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,          Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID},
+          { Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID, Add_ID, Add_ID,     Inf_ID,         Inf_ID,         Inf_ID,             Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,            Inf_ID,          Inf_ID,            Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,          Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID },
 /*E2*/
-          {Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Agregar_Cte,    Inf_Cte,        Inf_Cte,        Inf_Cte,            Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Iniciar_Cte_Float, Inf_Cte,         Inf_Cte,           Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,         Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte},
+          { Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Agregar_Constant,    Inf_Constant,        Inf_Constant,        Inf_Constant,            Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Init_Constant_Float, Inf_Constant,         Inf_Constant,           Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,         Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant },
 /*E3*/
-          {Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Agregar_Cte,    Inf_Cte,        Inf_Cte,        Inf_Cte,            Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Caract_No_Val,     Inf_Cte,         Inf_Cte,           Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,         Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte,        Inf_Cte},
+          { Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Agregar_Constant,    Inf_Constant,        Inf_Constant,        Inf_Constant,            Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,      characterNotValid,     Inf_Constant,         Inf_Constant,           Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,         Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant },
 /*E4*/
-          {Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_com,        Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta,        Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta,       Inf_OpResta,     Inf_OpResta,       Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta,     Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta,    Inf_OpResta},
+          { Inf_Minus, Inf_Minus, Inf_Minus, Inf_Comment, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus },
 /*E5*/
-          {Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,        Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,       Agregar_Com,     Agregar_Com,       Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,     Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com},
+          { Add_Comment,    Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment },
 /*E6*/
-          {Agregar_Com,    Fin_Com,        Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,        Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,       Agregar_Com,     Agregar_Com,       Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,     Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com,    Agregar_Com},
+          { Add_Comment, Finish_Comment,     Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment },
 /*E7*/
-          {Inf_OpConcat,   Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,         Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,        Inf_OpSuma,      Inf_OpSuma,        Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,      Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma,     Inf_OpSuma},
+          { Inf_Concatenation, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition },
 /*E8*/
-          {Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Igual,      Inf_Asignacion, Inf_Asignacion,     Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion,    Inf_Asignacion,  Inf_Asignacion,    Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion,  Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion, Inf_Asignacion},
+          { Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Equal, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment },
 /*E9*/
-          {Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_MenorIgual, Inf_Menor,      Inf_Distinto,       Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,         Inf_Menor,       Inf_Menor,         Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,       Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor,      Inf_Menor},
+          { Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_LessEqual, Inf_Less, Inf_Different, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less },
 /*E10*/
-          {Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,      Inf_OpAnd,      Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,     Caract_No_Val,   Caract_No_Val,     Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,   Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val},
+          { characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid, Inf_And,                   characterNotValid,   characterNotValid,   characterNotValid, characterNotValid,     characterNotValid,    characterNotValid,      characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,    characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid },
 /*E11*/
-          {Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,      Caract_No_Val,  Inf_OpOr,       Caract_No_Val,  Caract_No_Val,  Caract_No_Val,     Caract_No_Val,   Caract_No_Val,     Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,   Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val},
+          { characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,       characterNotValid, Inf_Or,                characterNotValid,   characterNotValid, characterNotValid,     characterNotValid,    characterNotValid,      characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,    characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid },
 /*E12*/
-          {Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_MayorIgual, Inf_Mayor,      Inf_Mayor,          Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,         Inf_Mayor,       Inf_Mayor,         Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,       Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor,      Inf_Mayor},
+          { Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_GreatEqual, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great },
 /*E13*/
-          {Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr,     Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Inf_CteStr,     Agregar_CteStr,    Agregar_CteStr,  Agregar_CteStr,    Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr,  Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Agregar_CteStr, Caract_No_Val,  Caract_No_Val},
+          { Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Inf_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant,                                   characterNotValid,   characterNotValid },
 /*E14*/
-          {Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,      Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,     Caract_No_Val,   Caract_No_Val,     Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,   Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val},
+          { characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,       characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid, characterNotValid,     characterNotValid,    characterNotValid,      characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,    characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid },
 /*E15*/
-          {Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,      Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,     Caract_No_Val,   Caract_No_Val,     Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,   Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val,  Caract_No_Val}
+          { characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,       characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid, characterNotValid,     characterNotValid,    characterNotValid,      characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,    characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid,   characterNotValid }
         };
 
 //MATRIZ ESTADOS
@@ -638,43 +637,43 @@ static int nEstado[16][27] =
         {
 //        0 |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  | 10  | 11  | 12  | 13  | 14  | 15  | 16  | 17  | 18 |  19  | 20  | 21  | 22  | 23  | 24  |  25 |  26 |
 //        + |  -  |  *  |  /  | Let | Dig |  =  |  <  |  >  |  &  |  |  |  !  |  "  |  .  |  [  |  ]  |  {  |  }  | (  |   )  |  ,  |  _  |  ;  | tab | blan|  ent|   : |
-/*E0*/ {7,  4,  15, 15, 1,  2,  8,  9,  12, 10, 11, 15, 13, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 0,  0,  0,  15},
+/*E0*/ { 7,  4,  15, 15, 1,  2,  8,  9,  12, 10, 11, 15, 13, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 0,  0,  0,  15 },
 /*E1*/
-       {15, 15, 15, 15, 1,  1,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+       { 15, 15, 15, 15, 1,  1,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
 /*E2*/
-       {15, 15, 15, 15, 15, 2,  15, 15, 15, 15, 15, 15, 15, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+       { 15, 15, 15, 15, 15, 2,  15, 15, 15, 15, 15, 15, 15, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
 /*E3*/
-       {15, 15, 15, 15, 15, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+       { 15, 15, 15, 15, 15, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
 /*E4*/
-       {15, 15, 15, 5,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+       { 15, 15, 15, 5,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
 /*E5*/
-       {5,  5,  5,  6,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5},
+       { 5,  5,  5,  6,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5 },
 /*E6*/
-       {5,  0,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5},
+       { 5,  0,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5 },
 /*E7*/
-       {15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+       { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
 /*E8*/
-       {15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+       { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
 /*E9*/
-       {15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+       { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
 /*E10*/
-       {14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14},
+       { 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
 /*E11*/
-       {14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14},
+       { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
 /*E12*/
-       {15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15},
+       { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
 /*E13*/
-       {13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 15, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13},
+       { 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 15, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13 },
 /*E14*/
-       {14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14},
+       { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
 /*E15*/
-       {14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14}
+       { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 }
         };
 
 /* -------------------------------------------------------------------------- */
-/* limpiarToken(): Limpia buffer de tokens                                    */
+/* cleanToken(): Limpia buffer de tokenFile                                    */
 /* -------------------------------------------------------------------------- */
-void limpiarToken()
+void cleanToken()
 {
     int i;
     for ( i = 0; i <= MAXLONG; i++ )
@@ -682,19 +681,19 @@ void limpiarToken()
 }
 
 /* -------------------------------------------------------------------------- */
-/* leerCaracter(): Lee un caracter del archivo                                */
+/* readCharacter(): Lee un readedChar del archivo                                */
 /* -------------------------------------------------------------------------- */
-void leerCaracter()
+void readCharacter()
 {
-    caracter = fgetc( input );
+    readedChar = fgetc( inputFile );
 }
 
 /* -------------------------------------------------------------------------- */
-/* mostrarToken(): Muestra el token por pantalla y lo guarda en tabla tokens  */
+/* saveToken(): Muestra el token por pantalla y lo guarda en tabla tokenFile  */
 /* -------------------------------------------------------------------------- */
-void mostrarToken()
+void saveToken()
 {
-    switch ( NroToken )
+    switch ( tokenNumber )
     {
         case ID:
             printf( "< ID       : %s >\n", token );
@@ -842,26 +841,28 @@ void mostrarToken()
             break;
     }
 
-    fprintf( tokens, "[ %s ] \n", token );
+    fprintf( tokenFile, "[ %s ] \n", token );
 }
 
 /* -------------------------------------------------------------------------- */
-/* leerColumna(): Retorna la columna que corresponde al caracter ingresado    */
+/* getColumnNumber(): Retorna la columna que corresponde al caracter ingresado    */
 /* -------------------------------------------------------------------------- */
-int leerColumna( char caracter )
+int getColumnNumber( char character )
 {
-    //LETRAS
-    if ( caracter <= 'z' && caracter >= 'a' )
+    // TODO: Cambiar los numeros de columna de acuerdo a las nuestras
+
+    // LETRAS
+    if ( character <= 'z' && character >= 'a' )
         return 4;
-    if ( caracter <= 'Z' && caracter >= 'A' )
+    if ( character <= 'Z' && character >= 'A' )
         return 4;
 
-    //DIGITOS
-    if ( caracter >= '0' && caracter <= '9' )
+    // DIGITOS
+    if ( character >= '0' && character <= '9' )
         return 5;
 
-    //OTROS CARACTERES
-    switch ( caracter )
+    // OTROS CARACTERES
+    switch ( character )
     {
         case '"':
             return 12;
@@ -946,10 +947,12 @@ int leerColumna( char caracter )
             break;
     }
 
-    //Cualquier otro caracter es ignorado
-    if ( cteStrAbierta == 0 && comAbierto == 0 )
+    //
+    // Cualquier otro caracter es ignorado
+    //
+    if ( openStringConstant == 0 && openComment == 0 )
     {
-        printf( "\n ERROR: Caracter no reconocido: '%c'. \n", caracter );
+        printf( "\n ERROR: Caracter no reconocido: '%c'. \n", character );
         printf( "\n - Analisis Lexico INTERRUMPIDO - \n" );
         exit( 1 );
     }
@@ -965,16 +968,16 @@ char * buscarEnTOS( int index )
 }
 
 /* -------------------------------------------------------------------------- */
-/* insertarTOS(): Inserta en la TOS o si ya existe devuelve la posicion       */
+/* insertInTOS(): Inserta en la TOS o si ya existe devuelve la posicion       */
 /* -------------------------------------------------------------------------- */
-int insertarTOS()
+int insertInTOS()
 {
     int i, j, x = 0;
     int ii = 0;
     char aux[100];
     char auxStr[100];
 
-    if ( NroToken == CTE_STRING )
+    if ( tokenNumber == CTE_STRING )
     {
         strcpy( auxStr, " " );
 
@@ -991,14 +994,14 @@ int insertarTOS()
     }
 
 
-    for ( i = 0; i < TOStop; i++ )
+    for ( i = 0; i < symbolTableIndex; i++ )
     {
-        if ( NroToken == ID )
+        if ( tokenNumber == ID )
         {
             if ( strcmp( TOS[i].nombre, token ) == 0 )
                 return i;
         }
-        else if ( NroToken == CTE_STRING )
+        else if ( tokenNumber == CTE_STRING )
         {
             if ( strcmp( TOS[i].valor, auxStr ) == 0 )
                 return i;
@@ -1010,67 +1013,67 @@ int insertarTOS()
         }
     }
 
-    switch ( NroToken )
+    switch ( tokenNumber )
     {
         case ID:
             strcat( aux, token );
-            strcpy( TOS[TOStop].nombre, token );
-            strcpy( TOS[TOStop].tipo, "ID" );
-            TOStop++;
+            strcpy( TOS[symbolTableIndex].nombre, token );
+            strcpy( TOS[symbolTableIndex].tipo, "ID" );
+            symbolTableIndex++;
             break;
         case CTE_ENT:
             strcpy( aux, "_" );
             strcat( aux, token );
-            strcpy( TOS[TOStop].nombre, aux );
-            strcpy( TOS[TOStop].tipo, "CTE_ENT" );
-            strcpy( TOS[TOStop].valor, token );
-            TOStop++;
+            strcpy( TOS[symbolTableIndex].nombre, aux );
+            strcpy( TOS[symbolTableIndex].tipo, "CTE_ENT" );
+            strcpy( TOS[symbolTableIndex].valor, token );
+            symbolTableIndex++;
             break;
         case CTE_REAL:
             strcpy( aux, "_" );
             strcat( aux, token );
-            strcpy( TOS[TOStop].nombre, aux );
-            strcpy( TOS[TOStop].tipo, "CTE_REAL" );
-            strcpy( TOS[TOStop].valor, token );
-            TOStop++;
+            strcpy( TOS[symbolTableIndex].nombre, aux );
+            strcpy( TOS[symbolTableIndex].tipo, "CTE_REAL" );
+            strcpy( TOS[symbolTableIndex].valor, token );
+            symbolTableIndex++;
             break;
         case CTE_STRING:
             strcpy( aux, "_" );
             strcat( aux, auxStr );
-            strcpy( TOS[TOStop].nombre, aux );
-            strcpy( TOS[TOStop].tipo, "CTE_STRING" );
-            strcpy( TOS[TOStop].valor, auxStr );
-            TOS[TOStop].longitud = (strlen( auxStr ));
-            TOStop++;
+            strcpy( TOS[symbolTableIndex].nombre, aux );
+            strcpy( TOS[symbolTableIndex].tipo, "CTE_STRING" );
+            strcpy( TOS[symbolTableIndex].valor, auxStr );
+            TOS[symbolTableIndex].longitud = ( strlen( auxStr ));
+            symbolTableIndex++;
             break;
     }
 
-    return TOStop - 1;
+    return symbolTableIndex - 1;
 }
 
-void mostrarTOS()
+void showTOS()
 {
     int i;
 
-    //printf("\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
-    fprintf( tos, "\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n" );
+    printf("\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
+    fprintf( tosFile, "\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n" );
 
-    //printf ("Nro\t | Nombre\t\t\t | Tipo\t | Valor\n");
-    fprintf( tos, "Nro\t | Nombre\t\t\t | Tipo\t | Valor\t | Longitud \n" );
-    for ( i = 0; i < TOStop; i++ )
+    printf ("Nro\t | Nombre\t\t\t | Tipo\t | Valor\n");
+    fprintf( tosFile, "Nro\t | Nombre\t\t\t | Tipo\t | Valor\t | Longitud \n" );
+    for ( i = 0; i < symbolTableIndex; i++ )
     {
-        //  printf ("%d     \t | %s     \t\t\t | %s     \t | %s \n",i,TOS[i].nombre, TOS[i].tipo, TOS[i].valor);
-        fprintf( tos, "%d     \t | %s     \t\t\t | %s     \t | %s \t | %d \n", i, TOS[i].nombre, TOS[i].tipo,
+        printf ("%d     \t | %s     \t\t\t | %s     \t | %s \n",i,TOS[i].nombre, TOS[i].tipo, TOS[i].valor);
+        fprintf( tosFile, "%d     \t | %s     \t\t\t | %s     \t | %s \t | %d \n", i, TOS[i].nombre, TOS[i].tipo,
                  TOS[i].valor, TOS[i].longitud );
     }
-    //printf("\n--------------------------------------------------------------------------------\n");
-    fprintf( tos, "\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n" );
+    printf("\n--------------------------------------------------------------------------------\n");
+    fprintf( tosFile, "\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n" );
 }
 
 /* -------------------------------------------------------------------------- */
-/* esPalabraReservada(): Varifica si un ID es una palabra reservada           */
+/* getReserverWordNumber(): Varifica si un ID es una palabra reservada           */
 /* -------------------------------------------------------------------------- */
-int esPalabraReservada()
+int getReserverWordNumber()
 {
     int i;
     for ( i = 0; i < CANTPR; i++ )
@@ -1085,171 +1088,173 @@ int esPalabraReservada()
 }
 
 /* -------------------------------------------------------------------------- */
-/* agregarPalabrasReservadas(): Agrega las Palabras reservadas a la Tabla de S*/
+/* addReservedWords(): Agrega las Palabras reservadas a la Tabla de Simbolos  */
 /* -------------------------------------------------------------------------- */
-void agregarPalabrasReservadas() //19
+void addReservedWords()
 {
-    TOStop = 0;
-    strcpy( TOS[TOStop].nombre, "MAIN" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    symbolTableIndex = 0;
+    strcpy( TOS[symbolTableIndex].nombre, "MAIN" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "VAR" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "VAR" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "AS" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "AS" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "ENDVAR" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "ENDVAR" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "IF" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "IF" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "THEN" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "THEN" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "ELSE" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "ELSE" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "FI" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "FI" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "FOR" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "FOR" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "TO" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "TO" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "STEP" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "STEP" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "ROF" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "ROF" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "DO" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "DO" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "WHILE" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "WHILE" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "WPRINT" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "WPRINT" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "FILTERC" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "FILTERC" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "INTEGER" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "INTEGER" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "FLOAT" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "FLOAT" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 
-    strcpy( TOS[TOStop].nombre, "STRING" );
-    strcpy( TOS[TOStop].tipo, "PR" );
-    TOStop++;
+    strcpy( TOS[symbolTableIndex].nombre, "STRING" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
 }
 
-void Validaciones()
+void makeValidations()
 {
-    if ( comAbierto != 0 )
+    if ( openComment != 0 )
     {
         printf( "\n ERROR: COMENTARIO no cerrado correctamente (no balancea). \n" );
         error = 1;
     }
 
-    if ( cteStrAbierta != 0 )
+    if ( openStringConstant != 0 )
     {
         printf( "\n ERROR: CTE STRING no cerrada correctamente (no balancea). \n" );
         error = 1;
     }
 
-    if ((strcmp( token, "&" ) == 0) || (strcmp( token, "|" ) == 0))
+    if (( strcmp( token, "&" ) == 0 ) || ( strcmp( token, "|" ) == 0 ))
     {
         printf( "\n ERROR: Se esperaba %s \n", token );
         exit( 1 );
     }
 
-    if ( NroToken == CTE_ENT || NroToken == CTE_REAL )
+    if ( tokenNumber == CTE_ENT || tokenNumber == CTE_REAL )
     {
-        Inf_Cte();
+        Inf_Constant();
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /*                               FUNCION YYLEX                                */
 /* -------------------------------------------------------------------------- */
-int yylex() //FUNCION  QUE LEE HASTA FINAL DE TOKEN O EOF
+int yylex()
 {
-    int estado = 0;
-    int columna;
+    int currentState = 0;
+    int column;
 
-    leerCaracter();
+    readCharacter();
 
-    if ( caracter == EOF)
+    if ( readedChar == EOF)
     {
-        NroToken = EOF;
-        return NroToken;
+        tokenNumber = EOF;
+        return tokenNumber;
     }
 
-    while ( estado != ESTADO_FINAL )
+    while ( currentState != FINAL_STATE )
     {
-        columna = leerColumna( caracter );
+        column = getColumnNumber( readedChar );
 
-        //Ejecuto la funcion de la matriz
-        (*proceso[estado][columna])();
+        //
+        // Ejecuto la funcion correspondiente de la matriz
+        //
+        ( *proceso[currentState][column] )();
 
-        //Luego cambio de estado
-        estado = nEstado[estado][columna];
+        // Luego cambio de estado
+        currentState = nEstado[currentState][column];
 
-        if ( estado != ESTADO_FINAL )
+        if ( currentState != FINAL_STATE )
         {
-            leerCaracter();
+            readCharacter();
 
-            if ( caracter == EOF)
+            if ( readedChar == EOF)
             {
-                Validaciones();
+                makeValidations();
 
-                if ( NroToken == ID && error == 0 )
+                if ( tokenNumber == ID && error == 0 )
                     Inf_ID();
 
-                if ( estado == 0 )
+                if ( currentState == 0 )
                     return EOF;
 
-                return NroToken;
+                return tokenNumber;
             }
         }
     }
 
-    return NroToken;
+    return tokenNumber;
 }
 
 /**
- * Creates a file with the tokens for the corresponding input
+ * Creates a file with the tokenFile for the corresponding inputFile
  */
 void analizeToFile( char * fileToAnalize )
 {
 
-    agregarPalabrasReservadas();
+    addReservedWords();
 
-    if ((input = fopen( fileToAnalize, "r" )) == NULL)
+    if (( inputFile = fopen( fileToAnalize, "r" )) == NULL)
     {
         printf( "No se puede abrir el archivo de entrada" );
         getch();
@@ -1257,35 +1262,35 @@ void analizeToFile( char * fileToAnalize )
     }
 
 
-    if ((tokens = fopen( "tokens.txt", "w" )) == NULL)
+    if (( tokenFile = fopen( "tokenFile.txt", "w" )) == NULL)
     {
-        printf( "No se puede crear el archivo de tokens" );
+        printf( "No se puede crear el archivo de tokenFile" );
         getch();
         exit( 1 );
     }
 
-    // Go to the end of the filw writing the tokens
+    // Go to the end of the filw writing the tokenFile
 
-    while ( feof( input ) == 0 )
+    while ( feof( inputFile ) == 0 )
     {
         if ( yylex() != EOF)
         {
             if ( error == 0 )
-                mostrarToken();
+                saveToken();
         }
     }
 
 
-    if ( fclose( input ) != 0 )
+    if ( fclose( inputFile ) != 0 )
     {
         printf( "No se puede CERRAR el archivo de entrada" );
         getch();
         exit( 1 );
     }
 
-    if ( fclose( tokens ) != 0 )
+    if ( fclose( tokenFile ) != 0 )
     {
-        printf( "No se puede CERRAR el archivo de tokens" );
+        printf( "No se puede CERRAR el archivo de tokenFile" );
         getch();
         exit( 1 );
     }
@@ -1294,16 +1299,16 @@ void analizeToFile( char * fileToAnalize )
     {
         printf( "\n - Analisis Lexico COMPLETO - \n" );
 
-        if ((tos = fopen( "tos.txt", "w" )) == NULL)
+        if (( tosFile = fopen( "tos.txt", "w" )) == NULL)
         {
             printf( "No se puede crear el archivo de la tabla de TOS" );
             getch();
             exit( 1 );
         }
 
-        mostrarTOS();
+        showTOS();
 
-        if ( fclose( tos ) != 0 )
+        if ( fclose( tosFile ) != 0 )
         {
             printf( "No se puede CERRAR el archivo de la tabla de tos" );
             getch();

@@ -15,15 +15,16 @@
 /* -------------------------------------------------------------------------- */
 /*                           DEFINCION CONSTANTES                             */
 /* -------------------------------------------------------------------------- */
-#define ESTADO_FINAL 15
+#define FINAL_STATE 15
 #define MAXLONG 30
 #define TAMMAX 100
 #define TAMTOKEN 1000
 #define CANTPR 19
 
 #define USHRT_MAX   65535
-#define FLT_MAX     3.40282347e+38F
-#define FLT_PREC    16
+#define FLOAT_MAX     3.40282347e+38F
+#define FLOAT_PREC    16
+
 //DEFINES TEMPORALES
 
 #define PR_MAIN 0
@@ -82,68 +83,95 @@
 /* -------------------------------------------------------------------------- */
 
 // FUNCIONES GENERALES
-void leerCaracter();
-void mostrarToken();
-int  leerColumna(char);
-void limpiarToken();
+void readCharacter();
+void saveToken();
+int  getColumnNumber( char );
+void cleanToken();
 
 char * buscarEnTOS(int);
-int insertarTOS();
-void mostrarTOS();
+int insertInTOS();
+void showTOS();
 
-int esPalabraReservada();
-void agregarPalabrasReservadas();
-void Validaciones();
+int getReserverWordNumber();
+void addReservedWords();
+void makeValidations();
 
 
 // FUNCIONES LÉXICO
-void Iniciar_ID();
-void Agregar_ID();
+void Init_ID();
+void Add_ID();
 void Inf_ID();
 
-void Iniciar_Cte();
-void Iniciar_Cte_Float();
+void Init_Constant();
+void Init_Constant_Float();
 
-void Agregar_Cte();
-void Inf_Cte();
+void Agregar_Constant();
+void Inf_Constant();
 
-void Iniciar_Com();
-void Inf_com();
-void Agregar_Com();
-void Fin_Com();
-void Inciar_CteStr();
-void Agregar_CteStr();
-void Inf_CteStr();
-void Inf_Asignacion();
-void Inf_Menor();
-void Inf_MenorIgual();
-void Inf_Mayor();
-void Inf_MayorIgual();
-void Iniciar_Dist();
-void Inf_Distinto();
-void Iniciar_Igual();
-void Inf_Igual();
-void Iniciar_Or();
-void Inf_OpOr();
-void Iniciar_And();
-void Inf_OpAnd();
-void Inf_OpSuma();
-void Inf_OpResta();
-void Inf_OpProducto();
-void Inf_OpDivision();
-void Inf_OpParAbre();
-void Inf_OpParCierra();
-void Inf_OpCorchAbre();
-void Inf_OpCorchCierra();
+void Init_Comment();
+void Inf_Comment();
+void Add_Comment();
+void Finish_Comment();
+
+void Init_StringConstant();
+void Add_StringConstant();
+void Inf_StringConstant();
+
+void Inf_Assignment();
+
+void Inf_Less();
+
+void Inf_LessEqual();
+
+void Inf_Great();
+
+void Inf_GreatEqual();
+
+void Init_Different();
+void Inf_Different();
+
+void Init_Equal();
+void Inf_Equal();
+
+void Init_Or();
+void Inf_Or();
+
+void Init_And();
+void Inf_And();
+
+void Inf_Addition();
+
+void Inf_Minus();
+
+void Inf_Multiply();
+
+void Inf_Division();
+
+void Inf_OpenParentesis();
+
+void Inf_ClosingParentesis();
+
+void Inf_OpenBrace();
+
+void Inf_ClosingBrace();
+
 void Inf_Not();
-void Nada();
-void Caract_No_Val();
-void Iniciar_concat();
-void Inf_OpConcat();
-void Inf_Sep();
-void Inf_OpTipo();
-void Inf_SepLista();
-void Inf_Guion();
+
+void None();
+
+void characterNotValid();
+
+void Init_Concatenation();
+
+void Inf_Concatenation();
+
+void Inf_Separator();
+
+void Inf_Type();
+
+void Inf_ListSeparator();
+
+void Inf_Undesrcore();
 
 int yylex();
 
