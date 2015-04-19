@@ -295,7 +295,7 @@ void Add_Comment()
 
 void Finish_Comment()
 {
-    openComment = 0;
+    openComment--;
     None();
 }
 
@@ -332,10 +332,20 @@ void CharacterNotValid()
 }
 
 /* ASIGNACION --------------------------------------------------------------- */
+void Init_Assignment()
+{
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_ASIG;
+}
+
 void Inf_Assignment()
 {
+    tokenSize++;
+    token[tokenSize] = readedChar;
     tokenNumber = OP_ASIG;
-    ungetc(( int ) readedChar, inputFile ); //Segun Automata
+    //ungetc(( int ) readedChar, inputFile ); //Segun Automata
 }
 
 /* SUMA --------------------------------------------------------------------- */
@@ -396,7 +406,7 @@ void Init_Equal()
     tokenSize = 0;
     token[tokenSize] = readedChar;
     //Posible ASIG
-    tokenNumber = OP_ASIG;
+    tokenNumber = OP_IGUAL;
 }
 
 void Inf_Equal()
@@ -571,12 +581,12 @@ void Inf_ListSeparator()
 }
 
 /* GUION ----------------------------- */
-void Inf_Undesrcore()
+void Inf_Int()
 {
     cleanToken();
     tokenSize = 0;
     token[tokenSize] = readedChar;
-    tokenNumber = OP_GUION;
+    tokenNumber = OP_INT;
 }
 /* -------------------------------------------------------------------------- */
 /*                           ESTRUCTURAS ESPECIALES                           */
@@ -595,79 +605,60 @@ struct tablaDeSimbolo
 struct tablaDeSimbolo TOS[TAMMAX];
 
 //MATRIZ PUNTERO A FUNCION
-void (* proceso[16][27])() =
+void (* proceso[20][20])() =
         {
-//                   0 |            1  |            2  |            3  |            4  |            5  |             6  |            7  |                 8  |            9  |           10  |           11  |           12  |              13  |            14  |               15  |           16  |           17  |           18  |            19  |           20  |           21  |           22  |           23  |           24  |            25  |            26  |
-//                   + |            -  |            *  |            /  |           Let |           Dig |             =  |            <  |                 >  |            &  |            |  |            !  |            "  |               .  |             [  |           	 ]   |            {  | 	         }   |            (  |             )  |            ,  |            _  |            ;  |           tab |           blan|            ent |             :  |
-/*E0*/    { Init_Concatenation, Init_Comment, Inf_Multiply, Inf_Division, Init_ID,     Init_Constant, Init_Equal, Init_Different,   Init_MayorIgual, Init_And,    Init_Or,     Inf_not, Init_StringConstant,  Init_Constant_Float, Inf_OpenBrace, Inf_ClosingBrace, Inf_OpLLAbre,   Inf_OpLLCierra, Inf_OpenParentesis, Inf_ClosingParentesis, Inf_ListSeparator, Inf_Undesrcore, Inf_Separator, None, None, None, Inf_Type },
-/*E1*/
-          { Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID, Add_ID, Add_ID,     Inf_ID,         Inf_ID,         Inf_ID,             Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,            Inf_ID,          Inf_ID,            Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,          Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID,         Inf_ID },
-/*E2*/
-          { Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Agregar_Constant,    Inf_Constant,        Inf_Constant,        Inf_Constant,            Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Init_Constant_Float, Inf_Constant,         Inf_Constant,           Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,         Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant },
-/*E3*/
-          { Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Agregar_Constant,    Inf_Constant,        Inf_Constant,        Inf_Constant,            Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,      CharacterNotValid,     Inf_Constant,         Inf_Constant,           Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,         Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant,        Inf_Constant },
-/*E4*/
-          { Inf_Minus, Inf_Minus, Inf_Minus, Inf_Comment, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus },
-/*E5*/
-          { Add_Comment,    Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment },
-/*E6*/
-          { Add_Comment, Finish_Comment,     Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment, Add_Comment },
-/*E7*/
-          { Inf_Concatenation, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition },
-/*E8*/
-          { Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Equal, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment, Inf_Assignment },
-/*E9*/
-          { Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_LessEqual, Inf_Less, Inf_Different, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less },
-/*E10*/
-          { CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid, Inf_And,                   CharacterNotValid,   CharacterNotValid,   CharacterNotValid, CharacterNotValid,     CharacterNotValid,    CharacterNotValid,      CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,    CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid },
-/*E11*/
-          { CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,       CharacterNotValid, Inf_Or,                CharacterNotValid,   CharacterNotValid, CharacterNotValid,     CharacterNotValid,    CharacterNotValid,      CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,    CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid },
-/*E12*/
-          { Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_GreatEqual, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great },
-/*E13*/
-          { Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Inf_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant,                                   CharacterNotValid,   CharacterNotValid },
-/*E14*/
-          { CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,       CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid, CharacterNotValid,     CharacterNotValid,    CharacterNotValid,      CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,    CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid },
-/*E15*/
-          { CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,       CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid, CharacterNotValid,     CharacterNotValid,    CharacterNotValid,      CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,    CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid,   CharacterNotValid }
+                { Init_ID, Init_Constant, Init_Concatenation, Init_Comment, Inf_Multiply, Inf_Division, Inf_OpenParentesis, Inf_ClosingParentesis, Init_Constant_Float, Init_Equal, Inf_Separator, Init_StringConstant, Init_MayorIgual, Inf_Different, Init_Assignment, None, Inf_Int, Inf_ListSeparator, Inf_OpenBrace, Inf_ClosingBrace},
+                { Add_ID, Add_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID},
+                { Inf_Constant, Agregar_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Init_Constant_Float, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant},
+                { Inf_Addition, Inf_Addition, Inf_Concatenation, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition},
+                { Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_GreatEqual, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great},
+                { Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_LessEqual, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less},
+                { Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Inf_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant},
+                { Inf_Constant, Agregar_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant},
+                { Inf_Minus, Inf_Minus, Inf_Minus, None, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus},
+                { CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, Inf_Comment, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid},
+                { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
+                { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
+                { None, None, None, Finish_Comment, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
+                { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
+                { None, None, None, None, None, Inf_Comment, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
+                { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
+                { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
+                { None, None, None, Finish_Comment, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
+                { CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, Inf_Assignment, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid},
+                {None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None},
+
+
+
+
+
+
         };
 
 //MATRIZ ESTADOS
-static int nEstado[16][27] =
+static int nEstado[20][20] =
         {
-//        0 |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  | 10  | 11  | 12  | 13  | 14  | 15  | 16  | 17  | 18 |  19  | 20  | 21  | 22  | 23  | 24  |  25 |  26 |
-//        + |  -  |  *  |  /  | Let | Dig |  =  |  <  |  >  |  &  |  |  |  !  |  "  |  .  |  [  |  ]  |  {  |  }  | (  |   )  |  ,  |  _  |  ;  | tab | blan|  ent|   : |
-/*E0*/ { 7,  4,  15, 15, 1,  2,  8,  9,  12, 10, 11, 15, 13, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 0,  0,  0,  15 },
-/*E1*/
-       { 15, 15, 15, 15, 1,  1,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
-/*E2*/
-       { 15, 15, 15, 15, 15, 2,  15, 15, 15, 15, 15, 15, 15, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
-/*E3*/
-       { 15, 15, 15, 15, 15, 3,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
-/*E4*/
-       { 15, 15, 15, 5,  15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
-/*E5*/
-       { 5,  5,  5,  6,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5 },
-/*E6*/
-       { 5,  0,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5 },
-/*E7*/
-       { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
-/*E8*/
-       { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
-/*E9*/
-       { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
-/*E10*/
-       { 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
-/*E11*/
-       { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
-/*E12*/
-       { 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15 },
-/*E13*/
-       { 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 15, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13 },
-/*E14*/
-       { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 },
-/*E15*/
-       { 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14 }
+                {1,2,3,8,19,19,19,19,7,19,19,6,4,5,18,0,19,19,19,19},
+                {1,1,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19},
+                {19,2,19,19,19,19,19,19,7,19,19,19,19,19,19,19,19,19,19,19},
+                {19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19},
+                {19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19},
+                {19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19},
+                {6,6,6,6,6,6,6,6,6,6,6,19,6,6,6,6,6,6,6,6},
+                {19,7,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19},
+                {19,19,19,9,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19},
+                {-1,-1,-1,-1,-1,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+                {10,10,10,13,10,11,10,10,10,10,10,10,10,10,10,10,10,10,10,10},
+                {10,10,10,12,10,11,10,10,10,10,10,10,10,10,10,10,10,10,10,10},
+                {-1,-1,-1,0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+                {10,10,10,14,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10},
+                {10,10,10,14,10,15,10,10,10,10,10,10,10,10,10,10,10,10,10,10},
+                {15,15,15,15,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15},
+                {15,15,15,17,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15},
+                {15,15,15,10,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15},
+                {-1,-1,-1,-1,-1,-1,-1,-1,-1,19,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+                {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+
         };
 
 /* -------------------------------------------------------------------------- */
@@ -836,8 +827,8 @@ void saveToken()
         case SEP_LISTA:
             printf( "< SEP_LISTA: %s >\n", token );
             break;
-        case OP_GUION:
-            printf( "< OP_GUION : %s >\n", token );
+        case OP_INT:
+            printf( "< OP_INT : %s >\n", token );
             break;
     }
 
@@ -853,94 +844,76 @@ int getColumnNumber( char character )
 
     // LETRAS
     if ( character <= 'z' && character >= 'a' )
-        return 4;
+        return 0;
     if ( character <= 'Z' && character >= 'A' )
-        return 4;
+        return 0;
 
     // DIGITOS
     if ( character >= '0' && character <= '9' )
-        return 5;
+        return 1;
 
     // OTROS CARACTERES
     switch ( character )
     {
-        case '"':
-            return 12;
-            break;
-        case '=':
-            return 6;
-            break;
-        case '<':
-            return 7;
-            break;
-        case '>':
-            return 8;
-            break;
-        case '!':
-            return 11;
-            break;
-        case '|':
-            return 10;
-            break;
-        case '&':
-            return 9;
-            break;
         case '+':
-            return 0;
-            break;
-        case '-':
-            return 1;
-            break;
-        case '*':
             return 2;
             break;
-        case '/':
+        case '-':
             return 3;
             break;
-        case '(':
-            return 18;
+        case '*':
+            return 4;
+        break;
+            case '/':
+                return 5;
             break;
-        case ')':
-            return 19;
+            case '(':
+                return 6;
             break;
-        case '[':
-            return 14;
+            case ')':
+                return 7;
             break;
-        case ']':
-            return 15;
+            case '.':
+                return 8;
             break;
-        case '{':
-            return 16;
+            case '=':
+                return 9;
             break;
-        case '}':
-            return 17;
+            case ';':
+                return 10;
             break;
-        case ';':
-            return 22;
+            case '"':
+                return 11;
             break;
-        case ',':
-            return 20;
+            case '>':
+                return 12;
             break;
-        case '.':
-            return 13;
+            case '<':
+                return 13;
             break;
-        case '\n':
-            return 25;
+            case ':':
+                return 14;
             break;
-        case '\t':
-            return 23;
+            case ' ':
+                return 15;
             break;
-        case ' ':
-            return 24;
+            case '\t':
+                return 15;
             break;
-        case '\0':
-            return 24;
+            case '\n':
+                return 15;
             break;
-        case ':':
-            return 26;
+            case '?':
+                return 16;
             break;
-        case '_':
-            return 21;
+            case ',':
+                return 17;
+            break;
+            case '[':
+                return 18;
+            break;
+            case ']':
+                return 19;
             break;
         case EOF:
             return EOF;

@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 /*                           DEFINCION CONSTANTES                             */
 /* -------------------------------------------------------------------------- */
-#define FINAL_STATE 15
+#define FINAL_STATE 19
 #define MAXLONG 30
 #define TAMMAX 100
 #define TAMTOKEN 1000
@@ -76,7 +76,7 @@
 #define SEP_SENT 46
 #define OP_TIPO 47
 #define SEP_LISTA 48
-#define OP_GUION 49
+#define OP_INT 49
 
 /* -------------------------------------------------------------------------- */
 /*                           DECLARACION PROTOTIPOS                           */
@@ -118,6 +118,7 @@ void Add_StringConstant();
 void Inf_StringConstant();
 
 void Inf_Assignment();
+
 
 void Inf_Less();
 
@@ -172,6 +173,10 @@ void Inf_Type();
 void Inf_ListSeparator();
 
 void Inf_Undesrcore();
+
+void Init_MayorIgual();
+void Inf_Int();
+
 
 int yylex();
 
