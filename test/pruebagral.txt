@@ -14,7 +14,7 @@ MAIN
 
     ENDWHILE
 
-    IF ( a > b )
+    IF ( NOT a < b OR a <> b )
         a := (b > 0 ? 2 : 3.);
     ENDIF
 

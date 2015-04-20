@@ -19,7 +19,7 @@
 #define MAXLONG         30
 #define TAMMAX          100
 #define TAMTOKEN        1000
-#define CANTPR          17
+#define CANTPR          18
 
 #define USHRT_MAX       65535
 #define FLOAT_MAX       3.40282347e+38F
@@ -42,6 +42,7 @@
 #define PR_DECLARE      14
 #define PR_ENDDECLARE   15
 #define PR_QEQUAL       16
+#define PR_NOT          17
 
 #define ID              20
 #define CTE_ENT         21
@@ -112,7 +113,7 @@ void Inf_StringConstant();
 
 void Inf_Assignment();
 
-
+void Init_LessEqual();
 void Inf_Less();
 
 void Inf_LessEqual();

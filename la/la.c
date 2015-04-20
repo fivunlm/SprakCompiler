@@ -130,7 +130,10 @@ void Inf_ID()
                 tokenNumber = PR_QEQUAL;
                 yylval = 17;
                 break;
-
+            case 18:
+                tokenNumber = PR_NOT;
+                yylval = 18;
+                break;
 
         }
         ungetc(( int ) readedChar, inputFile );
@@ -460,6 +463,14 @@ void Inf_Great()
 }
 
 /* MENORoIGUAL -------------------------------------------------------------- */
+void Init_LessEqual()
+{
+    cleanToken();
+    tokenSize = 0;
+    token[tokenSize] = readedChar;
+    tokenNumber = OP_MENOR;
+}
+
 void Inf_LessEqual()
 {
     tokenSize++;
@@ -563,12 +574,12 @@ struct tablaDeSimbolo TOS[TAMMAX];
 //MATRIZ PUNTERO A FUNCION
 void (* proceso[20][20])() =
         {
-                { Init_ID, Init_Constant, Init_Concatenation, Init_Comment, Inf_Multiply, Inf_Division, Inf_OpenParentesis, Inf_ClosingParentesis, Init_Constant_Float, Init_Equal, Inf_Separator, Init_StringConstant, Init_MayorIgual, Inf_Different, Init_Assignment, None, Inf_Int, Inf_ListSeparator, Inf_OpenBrace, Inf_ClosingBrace},
+                { Init_ID, Init_Constant, Init_Concatenation, Init_Comment, Inf_Multiply, Inf_Division, Inf_OpenParentesis, Inf_ClosingParentesis, Init_Constant_Float, Init_Equal, Inf_Separator, Init_StringConstant, Init_MayorIgual, Init_LessEqual, Init_Assignment, None, Inf_Int, Inf_ListSeparator, Inf_OpenBrace, Inf_ClosingBrace},
                 { Add_ID, Add_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID, Inf_ID},
                 { Inf_Constant, Agregar_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Init_Constant_Float, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant},
                 { Inf_Addition, Inf_Addition, Inf_Concatenation, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition, Inf_Addition},
                 { Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_GreatEqual, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great, Inf_Great},
-                { Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_LessEqual, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less},
+                { Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_LessEqual, Inf_Less, Inf_Less, Inf_Different, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less, Inf_Less},
                 { Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Inf_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant, Add_StringConstant},
                 { Inf_Constant, Agregar_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant, Inf_Constant},
                 { Inf_Minus, Inf_Minus, Inf_Minus, None, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus, Inf_Minus},
@@ -581,8 +592,9 @@ void (* proceso[20][20])() =
                 { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
                 { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
                 { None, None, None, Finish_Comment, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
-                { CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, Inf_Assignment, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, Inf_ListSeparator, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid},
+                { Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_Assignment, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator, Inf_ListSeparator},
                 {None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None},
+
         };
 
 //MATRIZ ESTADOS
@@ -639,137 +651,184 @@ void saveToken()
     {
         case ID:
             printf( "< ID       : %s >\n", token );
+            fprintf(tokenFile, "< ID       : %s >\n", token );
             break;
         case PR_MAIN:
             printf( "< PR MAIN  : %s >\n", token );
+            fprintf(tokenFile, "< PR MAIN  : %s >\n", token );
             break;
         case PR_ENDMAIN:
             printf( "< PR ENDMAIN  : %s >\n", token );
+            fprintf(tokenFile, "< PR ENDMAIN  : %s >\n", token );
             break;
         case PR_WHILE:
             printf( "< PR WHILE  : %s >\n", token );
+            fprintf(tokenFile, "< PR WHILE  : %s >\n", token );
             break;
         case PR_ENDWHILE:
             printf( "< PR ENDWHILE  : %s >\n", token );
+            fprintf(tokenFile, "< PR ENDWHILE  : %s >\n", token );
             break;
         case PR_IF:
             printf( "< PR IF  : %s >\n", token );
+            fprintf(tokenFile, "< PR IF  : %s >\n", token );
             break;
         case PR_ENDIF:
             printf( "< PR ENDIF  : %s >\n", token );
+            fprintf(tokenFile, "< PR ENDIF  : %s >\n", token );
             break;
         case PR_FLOAT:
             printf( "< PR FLOAT  : %s >\n", token );
+            fprintf(tokenFile, "< PR FLOAT  : %s >\n", token );
             break;
         case PR_INT:
             printf( "< PR INT  : %s >\n", token );
+            fprintf(tokenFile, "< PR INT  : %s >\n", token );
             break;
         case PR_STR:
             printf( "< PR STR  : %s >\n", token );
+            fprintf(tokenFile, "< PR STR  : %s >\n", token );
             break;
         case PR_CONST:
             printf( "< PR CONST  : %s >\n", token );
+            fprintf(tokenFile, "< PR CONST  : %s >\n", token );
             break;
         case PR_PUT:
             printf( "< PR PUT  : %s >\n", token );
+            fprintf(tokenFile, "< PR PUT  : %s >\n", token );
             break;
         case PR_GET:
             printf( "< PR GET  : %s >\n", token );
+            fprintf(tokenFile, "< PR GET  : %s >\n", token );
             break;
         case PR_AND:
             printf( "< PR AND  : %s >\n", token );
+            fprintf(tokenFile, "< PR AND  : %s >\n", token );
             break;
         case PR_OR:
             printf( "< PR OR  : %s >\n", token );
+            fprintf(tokenFile, "< PR OR  : %s >\n", token );
             break;
         case PR_DECLARE:
             printf( "< PR DECLARE  : %s >\n", token );
+            fprintf(tokenFile, "< PR DECLARE  : %s >\n", token );
             break;
         case PR_ENDDECLARE:
             printf( "< PR ENDDECLARE  : %s >\n", token );
+            fprintf(tokenFile, "< PR ENDDECLARE  : %s >\n", token );
             break;
         case PR_QEQUAL:
             printf( "< PR QEQUAL  : %s >\n", token );
+            fprintf(tokenFile, "< PR QEQUAL  : %s >\n", token );
+            break;
+        case PR_NOT:
+            printf( "< PR NOT  : %s >\n", token );
+            fprintf(tokenFile, "< PR NOT  : %s >\n", token );
             break;
 
         case CTE_ENT:
             printf( "< CTE ENT  : %s >\n", token );
+            fprintf(tokenFile, "< CTE ENT  : %s >\n", token );
             break;
         case CTE_REAL:
             printf( "< CTE REAL : %s >\n", token );
+            fprintf(tokenFile, "< CTE REAL : %s >\n", token );
             break;
         case CTE_STRING:
             printf( "< CTE_STR  : %s >\n", token );
+            fprintf(tokenFile, "< CTE_STR  : %s >\n", token );
             break;
         case OP_PABRE:
             printf( "< ABRE PAR : %s >\n", token );
+            fprintf(tokenFile, "< ABRE PAR : %s >\n", token );
             break;
         case OP_PCIERRA:
             printf( "< CIERR PAR: %s >\n", token );
+            fprintf(tokenFile, "< CIERR PAR: %s >\n", token );
             break;
         case OP_MENOR:
             printf( "< OP_MENOR : %s >\n", token );
+            fprintf(tokenFile, "< OP_MENOR : %s >\n", token );
             break;
         case OP_MENORIGUAL:
             printf( "< OP_MENIGU: %s >\n", token );
+            fprintf(tokenFile, "< OP_MENIGU: %s >\n", token );
             break;
         case OP_MAYOR:
             printf( "< OP_MAYOR : %s >\n", token );
+            fprintf(tokenFile, "< OP_MAYOR : %s >\n", token );
             break;
         case OP_MAYORIGUAL:
             printf( "< OP_MAYIGU: %s >\n", token );
+            fprintf(tokenFile, "< OP_MAYIGU: %s >\n", token );
             break;
         case OP_IGUAL:
             printf( "< OP_IGUAL : %s >\n", token );
+            fprintf(tokenFile, "< OP_IGUAL : %s >\n", token );
             break;
         case OP_DISTINTO:
             printf( "< OP_DISTIN: %s >\n", token );
+            fprintf(tokenFile, "< OP_DISTIN: %s >\n", token );
             break;
         case OP_SUMA:
             printf( "< OP_SUMA  : %s >\n", token );
+            fprintf(tokenFile, "< OP_SUMA  : %s >\n", token );
             break;
         case OP_RESTA:
             printf( "< OP_RESTA : %s >\n", token );
+            fprintf(tokenFile, "< OP_RESTA : %s >\n", token );
             break;
         case OP_MULTIPLI:
             printf( "< OP_MULTI : %s >\n", token );
+            fprintf(tokenFile, "< OP_MULTI : %s >\n", token );
             break;
         case OP_DIVISION:
             printf( "< OP_DIV   : %s >\n", token );
+            fprintf(tokenFile, "< OP_DIV   : %s >\n", token );
             break;
         case OP_CABRE:
             printf( "< ABRE COR : %s >\n", token );
+            fprintf(tokenFile, "< ABRE COR : %s >\n", token );
             break;
         case OP_CCIERRA:
             printf( "< CIERR COR: %s >\n", token );
+            fprintf(tokenFile, "< CIERR COR: %s >\n", token );
             break;
         case OP_ASIG:
             printf( "< OP_ASIG  : %s >\n", token );
+            fprintf(tokenFile, "< OP_ASIG  : %s >\n", token );
             break;
         case OP_LLABRE:
             printf( "< ABRE LLA : %s >\n", token );
+            fprintf(tokenFile, "< ABRE LLA : %s >\n", token );
             break;
         case OP_LLCIERRA:
             printf( "< CIERR LLA: %s >\n", token );
+            fprintf(tokenFile, "< CIERR LLA: %s >\n", token );
             break;
         case OP_CONCAT:
             printf( "< OP_CONCAT: %s >\n", token );
+            fprintf(tokenFile, "< OP_CONCAT: %s >\n", token );
             break;
         case SEP_SENT:
             printf( "< SEPA_SENT: %s >\n", token );
+            fprintf(tokenFile, "< SEPA_SENT: %s >\n", token );
             break;
         case OP_TIPO:
             printf( "< OP_TIPO  : %s >\n", token );
+            fprintf(tokenFile, "< OP_TIPO  : %s >\n", token );
             break;
         case SEP_LISTA:
             printf( "< SEP_LISTA: %s >\n", token );
+            fprintf(tokenFile, "< SEP_LISTA: %s >\n", token );
             break;
         case OP_INT:
             printf( "< OP_INT : %s >\n", token );
+            fprintf(tokenFile, "< OP_INT : %s >\n", token );
             break;
     }
 
-    fprintf( tokenFile, "[ %s ] \n", token );
+    //fprintf( tokenFile, "[ %s ] \n", token );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1066,6 +1125,10 @@ void addReservedWords()
     symbolTableIndex++;
 
     strcpy( TOS[symbolTableIndex].nombre, "QEQUAL" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "NOT" );
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 }
