@@ -1,0 +1,25 @@
+MAIN
+    DECLARE
+        (a : INT,b : FLOAT)
+        (c: STR)
+    ENDDECLARE
+
+    PUT "ewr"; --/ donde “ewr” debe ser una cte string /--
+    GET pivot; --/ donde pivot es una variable /--
+    PUT var1; --/ donde var1 es una variable definida previamente --/ Segundo nivel/--/--
+
+    WHILE( a > b OR a >= b AND ( a = b OR a <= b) )
+
+        QEQUAL( a+w/b, [(d-3)*2,e,f] );
+
+    ENDWHILE
+
+    IF ( a > b )
+        a := (b > 0 ? 2 : 3.);
+    ENDIF
+
+    d := .33 + 12.33;
+
+    c := "AJAJAJAJ" ++ "SAJDSAJDSAJD";
+
+ENDMAIN

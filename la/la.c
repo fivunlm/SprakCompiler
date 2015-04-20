@@ -14,14 +14,14 @@ FILE * tosFile;           // Archivo de TOS ( Table Of Symbols )
 
 char readedChar;           // Caracter leido.
 int tokenNumber = -1;        // Valor que devuelve el yylex.
-int tokenSize = 0;         // Se utiliza para validar los tamaños de los ID y ConstantSTR.
+int tokenSize = 0;         // Se utiliza para validar los tamaï¿½os de los ID y ConstantSTR.
 char token[1000];         // Almacena el token armado.
 int openStringConstant;        // Para validar que las ctes string esten bien formadas. Por ahora no la estamos usando.
 int openComment;           // Para validar que los comentarios son cerrados.
 int error = 0;            // para identificar si hubo o no error.
-int nroLinea = 1;         // Para identificar en que línea se produjo el error.
+int nroLinea = 1;         // Para identificar en que lï¿½nea se produjo el error.
 int ptoInicio = 0;        // Para completar el nro segun corresponda EJ:.36 => 0.36
-int symbolTableIndex = 0;           // Índice de la TOS
+int symbolTableIndex = 0;           // ï¿½ndice de la TOS
 
 //Variable global provisoria
 
@@ -65,16 +65,17 @@ void Inf_ID()
                 tokenNumber = PR_MAIN;
                 yylval = 1;
                 break;
+
             case 2:
-                tokenNumber = PR_VAR;
+                tokenNumber = PR_ENDMAIN;
                 yylval = 2;
                 break;
             case 3:
-                tokenNumber = PR_AS;
+                tokenNumber = PR_WHILE;
                 yylval = 3;
                 break;
             case 4:
-                tokenNumber = PR_ENDVAR;
+                tokenNumber = PR_ENDWHILE;
                 yylval = 4;
                 break;
             case 5:
@@ -82,61 +83,55 @@ void Inf_ID()
                 yylval = 5;
                 break;
             case 6:
-                tokenNumber = PR_THEN;
+                tokenNumber = PR_ENDIF;
                 yylval = 6;
                 break;
             case 7:
-                tokenNumber = PR_ELSE;
+                tokenNumber = PR_FLOAT;
                 yylval = 7;
                 break;
             case 8:
-                tokenNumber = PR_FI;
+                tokenNumber = PR_INT;
                 yylval = 8;
                 break;
             case 9:
-                tokenNumber = PR_FOR;
+                tokenNumber = PR_STR;
                 yylval = 9;
                 break;
             case 10:
-                tokenNumber = PR_TO;
+                tokenNumber = PR_CONST;
                 yylval = 10;
                 break;
             case 11:
-                tokenNumber = PR_STEP;
+                tokenNumber = PR_PUT;
                 yylval = 11;
                 break;
             case 12:
-                tokenNumber = PR_ROF;
+                tokenNumber = PR_GET;
                 yylval = 12;
                 break;
             case 13:
-                tokenNumber = PR_DO;
+                tokenNumber = PR_AND;
                 yylval = 13;
                 break;
             case 14:
-                tokenNumber = PR_WHILE;
+                tokenNumber = PR_OR;
                 yylval = 14;
                 break;
             case 15:
-                tokenNumber = PR_WPRINT;
+                tokenNumber = PR_DECLARE;
                 yylval = 15;
                 break;
             case 16:
-                tokenNumber = PR_FILTERC;
+                tokenNumber = PR_ENDDECLARE;
                 yylval = 16;
                 break;
             case 17:
-                tokenNumber = PR_INTEGER;
+                tokenNumber = PR_QEQUAL;
                 yylval = 17;
                 break;
-            case 18:
-                tokenNumber = PR_FLOAT;
-                yylval = 18;
-                break;
-            case 19:
-                tokenNumber = PR_STRING;
-                yylval = 19;
-                break;
+
+
         }
         ungetc(( int ) readedChar, inputFile );
     }
@@ -327,7 +322,7 @@ void CharacterNotValid()
     if ( strcmp( token, "." ) == 0 )
         printf( "\n - ERROR: Se esperaba un digito \n" );
 
-    printf( "\n - Analisis Lexico INTERRUMPIDO - \n" );
+    printf( "\n - Analisis Lexico INTERRUMPIDO - %s\n", token );
     exit( 0 );
 }
 
@@ -472,45 +467,6 @@ void Inf_LessEqual()
     tokenNumber = OP_MENORIGUAL;
 }
 
-/* OR  ---------------------------------------------------------------------- */
-void Init_Or()
-{
-    cleanToken();
-    tokenSize = 0;
-    token[tokenSize] = readedChar;
-}
-
-void Inf_Or()
-{
-    tokenSize++;
-    token[tokenSize] = readedChar;
-    tokenNumber = OP_OR;
-}
-
-/* AND ---------------------------------------------------------------------- */
-void Init_And()
-{
-    cleanToken();
-    tokenSize = 0;
-    token[tokenSize] = readedChar;
-}
-
-void Inf_And()
-{
-    tokenSize++;
-    token[tokenSize] = readedChar;
-    tokenNumber = OP_AND;
-}
-
-/* NOT ---------------------------------------------------------------------- */
-void Inf_not()
-{
-    cleanToken();
-    tokenSize = 0;
-    token[tokenSize] = readedChar;
-    tokenNumber = OP_NOT;
-}
-
 /* PARENTESIS --------------------------------------------------------------- */
 void Inf_OpenParentesis()
 {
@@ -625,14 +581,8 @@ void (* proceso[20][20])() =
                 { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
                 { None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
                 { None, None, None, Finish_Comment, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None},
-                { CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, Inf_Assignment, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid},
+                { CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, Inf_Assignment, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid, Inf_ListSeparator, CharacterNotValid, CharacterNotValid, CharacterNotValid, CharacterNotValid},
                 {None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None},
-
-
-
-
-
-
         };
 
 //MATRIZ ESTADOS
@@ -656,8 +606,9 @@ static int nEstado[20][20] =
                 {15,15,15,15,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15},
                 {15,15,15,17,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15},
                 {15,15,15,10,15,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15},
-                {-1,-1,-1,-1,-1,-1,-1,-1,-1,19,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+                {19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19,19},
                 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+
 
         };
 
@@ -692,60 +643,55 @@ void saveToken()
         case PR_MAIN:
             printf( "< PR MAIN  : %s >\n", token );
             break;
-        case PR_VAR:
-            printf( "< PR VAR   : %s >\n", token );
-            break;
-        case PR_AS:
-            printf( "< PR AS   : %s >\n", token );
-            break;
-        case PR_ENDVAR:
-            printf( "< PR ENDVAR: %s >\n", token );
-            break;
-        case PR_IF:
-            printf( "< PR IF    : %s >\n", token );
-            break;
-        case PR_THEN:
-            printf( "< PR THEN  : %s >\n", token );
-            break;
-        case PR_ELSE:
-            printf( "< PR ELSE  : %s >\n", token );
-            break;
-        case PR_FI:
-            printf( "< PR FI    : %s >\n", token );
-            break;
-        case PR_FOR:
-            printf( "< PR FOR   : %s >\n", token );
-            break;
-        case PR_TO:
-            printf( "< PR TO    : %s >\n", token );
-            break;
-        case PR_STEP:
-            printf( "< PR STEP  : %s >\n", token );
-            break;
-        case PR_ROF:
-            printf( "< PR ROF   : %s >\n", token );
-            break;
-        case PR_DO:
-            printf( "< PR DO    : %s >\n", token );
+        case PR_ENDMAIN:
+            printf( "< PR ENDMAIN  : %s >\n", token );
             break;
         case PR_WHILE:
-            printf( "< PR WHILE : %s >\n", token );
+            printf( "< PR WHILE  : %s >\n", token );
             break;
-        case PR_WPRINT:
-            printf( "< PR WPRINT: %s >\n", token );
+        case PR_ENDWHILE:
+            printf( "< PR ENDWHILE  : %s >\n", token );
             break;
-        case PR_FILTERC:
-            printf( "< PR FILTER: %s >\n", token );
+        case PR_IF:
+            printf( "< PR IF  : %s >\n", token );
             break;
-        case PR_STRING:
-            printf( "< PR_STRING : %s >\n", token );
-            break;
-        case PR_INTEGER:
-            printf( "< PR_INTEGER : %s >\n", token );
+        case PR_ENDIF:
+            printf( "< PR ENDIF  : %s >\n", token );
             break;
         case PR_FLOAT:
-            printf( "< PR_FLOAT : %s >\n", token );
+            printf( "< PR FLOAT  : %s >\n", token );
             break;
+        case PR_INT:
+            printf( "< PR INT  : %s >\n", token );
+            break;
+        case PR_STR:
+            printf( "< PR STR  : %s >\n", token );
+            break;
+        case PR_CONST:
+            printf( "< PR CONST  : %s >\n", token );
+            break;
+        case PR_PUT:
+            printf( "< PR PUT  : %s >\n", token );
+            break;
+        case PR_GET:
+            printf( "< PR GET  : %s >\n", token );
+            break;
+        case PR_AND:
+            printf( "< PR AND  : %s >\n", token );
+            break;
+        case PR_OR:
+            printf( "< PR OR  : %s >\n", token );
+            break;
+        case PR_DECLARE:
+            printf( "< PR DECLARE  : %s >\n", token );
+            break;
+        case PR_ENDDECLARE:
+            printf( "< PR ENDDECLARE  : %s >\n", token );
+            break;
+        case PR_QEQUAL:
+            printf( "< PR QEQUAL  : %s >\n", token );
+            break;
+
         case CTE_ENT:
             printf( "< CTE ENT  : %s >\n", token );
             break;
@@ -760,15 +706,6 @@ void saveToken()
             break;
         case OP_PCIERRA:
             printf( "< CIERR PAR: %s >\n", token );
-            break;
-        case OP_OR:
-            printf( "< OP_OR    : %s >\n", token );
-            break;
-        case OP_AND:
-            printf( "< OP_AND   : %s >\n", token );
-            break;
-        case OP_NOT:
-            printf( "< OP_NOT   : %s >\n", token );
             break;
         case OP_MENOR:
             printf( "< OP_MENOR : %s >\n", token );
@@ -840,8 +777,6 @@ void saveToken()
 /* -------------------------------------------------------------------------- */
 int getColumnNumber( char character )
 {
-    // TODO: Cambiar los numeros de columna de acuerdo a las nuestras
-
     // LETRAS
     if ( character <= 'z' && character >= 'a' )
         return 0;
@@ -1028,18 +963,18 @@ void showTOS()
 {
     int i;
 
-    printf("\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
+    //printf("\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n");
     fprintf( tosFile, "\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n" );
 
-    printf ("Nro\t | Nombre\t\t\t | Tipo\t | Valor\n");
+    //printf ("Nro\t | Nombre\t\t\t | Tipo\t | Valor\n");
     fprintf( tosFile, "Nro\t | Nombre\t\t\t | Tipo\t | Valor\t | Longitud \n" );
     for ( i = 0; i < symbolTableIndex; i++ )
     {
-        printf ("%d     \t | %s     \t\t\t | %s     \t | %s \n",i,TOS[i].nombre, TOS[i].tipo, TOS[i].valor);
+        //printf ("%d     \t | %s     \t\t\t | %s     \t | %s \n",i,TOS[i].nombre, TOS[i].tipo, TOS[i].valor);
         fprintf( tosFile, "%d     \t | %s     \t\t\t | %s     \t | %s \t | %d \n", i, TOS[i].nombre, TOS[i].tipo,
                  TOS[i].valor, TOS[i].longitud );
     }
-    printf("\n--------------------------------------------------------------------------------\n");
+    //printf("\n--------------------------------------------------------------------------------\n");
     fprintf( tosFile, "\n------------------------------ TABLA DE  SIMBOLOS ------------------------------\n" );
 }
 
@@ -1070,51 +1005,7 @@ void addReservedWords()
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 
-    strcpy( TOS[symbolTableIndex].nombre, "VAR" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "AS" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "ENDVAR" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "IF" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "THEN" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "ELSE" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "FI" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "FOR" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "TO" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "STEP" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "ROF" );
-    strcpy( TOS[symbolTableIndex].tipo, "PR" );
-    symbolTableIndex++;
-
-    strcpy( TOS[symbolTableIndex].nombre, "DO" );
+    strcpy( TOS[symbolTableIndex].nombre, "ENDMAIN" );
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 
@@ -1122,15 +1013,15 @@ void addReservedWords()
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 
-    strcpy( TOS[symbolTableIndex].nombre, "WPRINT" );
+    strcpy( TOS[symbolTableIndex].nombre, "ENDWHILE" );
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 
-    strcpy( TOS[symbolTableIndex].nombre, "FILTERC" );
+    strcpy( TOS[symbolTableIndex].nombre, "IF" );
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 
-    strcpy( TOS[symbolTableIndex].nombre, "INTEGER" );
+    strcpy( TOS[symbolTableIndex].nombre, "ENDIF" );
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 
@@ -1138,7 +1029,43 @@ void addReservedWords()
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 
-    strcpy( TOS[symbolTableIndex].nombre, "STRING" );
+    strcpy( TOS[symbolTableIndex].nombre, "INT" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "STR" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "CONST" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "PUT" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "GET" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "AND" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "OR" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "DECLARE" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "ENDDECLARE" );
+    strcpy( TOS[symbolTableIndex].tipo, "PR" );
+    symbolTableIndex++;
+
+    strcpy( TOS[symbolTableIndex].nombre, "QEQUAL" );
     strcpy( TOS[symbolTableIndex].tipo, "PR" );
     symbolTableIndex++;
 }
@@ -1155,12 +1082,6 @@ void makeValidations()
     {
         printf( "\n ERROR: CTE STRING no cerrada correctamente (no balancea). \n" );
         error = 1;
-    }
-
-    if (( strcmp( token, "&" ) == 0 ) || ( strcmp( token, "|" ) == 0 ))
-    {
-        printf( "\n ERROR: Se esperaba %s \n", token );
-        exit( 1 );
     }
 
     if ( tokenNumber == CTE_ENT || tokenNumber == CTE_REAL )
@@ -1235,9 +1156,9 @@ void analizeToFile( char * fileToAnalize )
     }
 
 
-    if (( tokenFile = fopen( "tokenFile.txt", "w" )) == NULL)
+    if (( tokenFile = fopen( "prueba.txt", "w" )) == NULL)
     {
-        printf( "No se puede crear el archivo de tokenFile" );
+        printf( "No se puede crear el archivo de prueba.txt" );
         getch();
         exit( 1 );
     }

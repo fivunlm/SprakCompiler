@@ -10,5 +10,9 @@ void main(int argc, char* argv[])
     {
        analizeToFile(argv[1]);
     }
+    else
+    {
+        analizeToFile("pruebagral.txt");
+    }
 }
 
