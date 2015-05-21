@@ -1,0 +1,2334 @@
+
+
+-*-=-*-=-*-=-*-=-*-      LALR PARSING TABLE      -*-=-*-=-*-=-*-=-*-
+
+
++-------------------------     STATE 0     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        $accept : ^programa $end 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+         DEFINE : shift & new state 4
+          PRINT : shift & new state 13
+                : error
+
+       programa : goto state 1
+     bloquedecl : goto state 2
+     sentencias : goto state 3
+      sentencia : goto state 5
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 1     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        $accept :  programa^$end 
+
++ ACTIONS AND GOTOS:
+
+           $end : accept
+                : error
+
+
++-------------------------     STATE 2     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       programa :  bloquedecl^sentencias 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+     sentencias : goto state 15
+      sentencia : goto state 5
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 3     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       programa :  sentencias^    (rule 2)
+     sentencias :  sentencias^sentencia 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : reduce by rule 2
+
+      sentencia : goto state 16
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 4     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     bloquedecl :  DEFINE^declaraciones ENDDEFINE 
+
++ ACTIONS AND GOTOS:
+
+           REAL : shift & new state 20
+            INT : shift & new state 21
+         STRING : shift & new state 22
+                : error
+
+  declaraciones : goto state 17
+    declaracion : goto state 18
+       tipodato : goto state 19
+
++-------------------------     STATE 5     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     sentencias :  sentencia^    (rule 5)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 5
+
+
++-------------------------     STATE 6     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF^condicions sentencias $$6 ELSE sentencias ENDIF 
+      sentencia :  IF^condicions sentencias ENDIF 
+      sentencia :  IF^condicionc sentencias $$9 ELSE sentencias ENDIF 
+      sentencia :  IF^condicionc sentencias ENDIF 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+         INLIST : shift & new state 28
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+     condicions : goto state 23
+     condicionc : goto state 24
+              I : goto state 32
+        comp_Li : goto state 25
+      condicion : goto state 26
+        cond_Li : goto state 27
+      expresion : goto state 29
+        termino : goto state 30
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 7     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  WHILE^condicions $$12 sentencias ENDWHILE 
+      sentencia :  WHILE^condicionc $$14 sentencias ENDWHILE 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+         INLIST : shift & new state 28
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+     condicions : goto state 43
+     condicionc : goto state 44
+              I : goto state 32
+        comp_Li : goto state 25
+      condicion : goto state 26
+        cond_Li : goto state 27
+      expresion : goto state 29
+        termino : goto state 30
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 8     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  RENAME^PAR_A I COMA I PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 45
+                : error
+
+
++-------------------------     STATE 9     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  asignacion^    (rule 17)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 17
+
+
++-------------------------     STATE 10     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  output^    (rule 18)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 18
+
+
++-------------------------     STATE 11     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     asignacion :  I^OP_ASIGN expresion 
+ asignacionmult :  I^OP_ASIGN asignacion 
+
++ ACTIONS AND GOTOS:
+
+       OP_ASIGN : shift & new state 46
+                : error
+
+
++-------------------------     STATE 12     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     asignacion :  asignacionmult^    (rule 32)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 32
+
+
++-------------------------     STATE 13     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT^PAR_A CS PAR_C 
+         output :  PRINT^PAR_A I PAR_C 
+         output :  PRINT^PAR_A C PAR_C 
+         output :  PRINT^PAR_A CE PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 47
+                : error
+
+
++-------------------------     STATE 14     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+              I :  ID^    (rule 62)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 62
+
+
++-------------------------     STATE 15     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       programa :  bloquedecl sentencias^    (rule 1)
+     sentencias :  sentencias^sentencia 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : reduce by rule 1
+
+      sentencia : goto state 16
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 16     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     sentencias :  sentencias sentencia^    (rule 4)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 4
+
+
++-------------------------     STATE 17     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     bloquedecl :  DEFINE declaraciones^ENDDEFINE 
+  declaraciones :  declaraciones^declaracion 
+
++ ACTIONS AND GOTOS:
+
+           REAL : shift & new state 20
+            INT : shift & new state 21
+      ENDDEFINE : shift & new state 48
+         STRING : shift & new state 22
+                : error
+
+    declaracion : goto state 49
+       tipodato : goto state 19
+
++-------------------------     STATE 18     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+  declaraciones :  declaracion^    (rule 29)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 29
+
+
++-------------------------     STATE 19     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+    declaracion :  tipodato^DOS_PTOS listaID 
+
++ ACTIONS AND GOTOS:
+
+       DOS_PTOS : shift & new state 50
+                : error
+
+
++-------------------------     STATE 20     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       tipodato :  REAL^    (rule 53)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 53
+
+
++-------------------------     STATE 21     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       tipodato :  INT^    (rule 54)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 54
+
+
++-------------------------     STATE 22     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       tipodato :  STRING^    (rule 55)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 55
+
+
++-------------------------     STATE 23     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicions^sentencias $$6 ELSE sentencias ENDIF 
+      sentencia :  IF condicions^sentencias ENDIF 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+     sentencias : goto state 51
+      sentencia : goto state 5
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 24     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicionc^sentencias $$9 ELSE sentencias ENDIF 
+      sentencia :  IF condicionc^sentencias ENDIF 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+     sentencias : goto state 52
+      sentencia : goto state 5
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 25     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     condicions :  comp_Li^    (rule 19)
+     condicionc :  comp_Li^OP_AND comp_Ld 
+     condicionc :  comp_Li^OP_OR comp_Ld 
+
++ ACTIONS AND GOTOS:
+
+          OP_OR : shift & new state 54
+         OP_AND : shift & new state 53
+                : reduce by rule 19
+
+
++-------------------------     STATE 26     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        comp_Li :  condicion^    (rule 22)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 22
+
+
++-------------------------     STATE 27     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  cond_Li^opercomp cond_Ld 
+
++ ACTIONS AND GOTOS:
+
+        OP_DIST : shift & new state 57
+      OP_MEN_IG : shift & new state 60
+       OP_MENOR : shift & new state 59
+       OP_MAYOR : shift & new state 58
+      OP_MAY_IG : shift & new state 61
+        OP_COMP : shift & new state 56
+                : error
+
+       opercomp : goto state 55
+
++-------------------------     STATE 28     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  INLIST^PAR_A I COMA CORCH_A listactes CORCH_C PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 62
+                : error
+
+
++-------------------------     STATE 29     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        cond_Li :  expresion^    (rule 26)
+      expresion :  expresion^OP_MAS termino 
+      expresion :  expresion^OP_MENOS termino 
+
++ ACTIONS AND GOTOS:
+
+       OP_MENOS : shift & new state 64
+         OP_MAS : shift & new state 63
+                : reduce by rule 26
+
+
++-------------------------     STATE 30     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      expresion :  termino^    (rule 36)
+        termino :  termino^OP_MULT factor 
+        termino :  termino^OP_DIV factor 
+
++ ACTIONS AND GOTOS:
+
+        OP_MULT : shift & new state 65
+         OP_DIV : shift & new state 66
+                : reduce by rule 36
+
+
++-------------------------     STATE 31     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        termino :  factor^    (rule 39)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 39
+
+
++-------------------------     STATE 32     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  I^    (rule 40)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 40
+
+
++-------------------------     STATE 33     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  constante^    (rule 41)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 41
+
+
++-------------------------     STATE 34     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  PAR_A^expresion PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 32
+      expresion : goto state 67
+        termino : goto state 30
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 35     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  ROUND^PAR_A I PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 68
+                : error
+
+
++-------------------------     STATE 36     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  TRUNC^PAR_A I PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 69
+                : error
+
+
++-------------------------     STATE 37     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      constante :  C^    (rule 63)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 63
+
+
++-------------------------     STATE 38     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      constante :  CE^    (rule 64)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 64
+
+
++-------------------------     STATE 39     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      constante :  CS^    (rule 65)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 65
+
+
++-------------------------     STATE 40     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+              C :  CTE_REAL^    (rule 66)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 66
+
+
++-------------------------     STATE 41     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+             CE :  CTE_INT^    (rule 67)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 67
+
+
++-------------------------     STATE 42     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+             CS :  CTE_STR^    (rule 68)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 68
+
+
++-------------------------     STATE 43     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  WHILE condicions^$$12 sentencias ENDWHILE 
+           $$12 : ^    (rule 12)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 12
+
+           $$12 : goto state 70
+
++-------------------------     STATE 44     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  WHILE condicionc^$$14 sentencias ENDWHILE 
+           $$14 : ^    (rule 14)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 14
+
+           $$14 : goto state 71
+
++-------------------------     STATE 45     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  RENAME PAR_A^I COMA I PAR_C 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+                : error
+
+              I : goto state 72
+
++-------------------------     STATE 46     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     asignacion :  I OP_ASIGN^expresion 
+ asignacionmult :  I OP_ASIGN^asignacion 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 75
+     asignacion : goto state 74
+      expresion : goto state 73
+ asignacionmult : goto state 12
+        termino : goto state 30
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 47     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A^CS PAR_C 
+         output :  PRINT PAR_A^I PAR_C 
+         output :  PRINT PAR_A^C PAR_C 
+         output :  PRINT PAR_A^CE PAR_C 
+
++ ACTIONS AND GOTOS:
+
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+        CTE_INT : shift & new state 41
+                : error
+
+              I : goto state 77
+             CS : goto state 76
+              C : goto state 78
+             CE : goto state 79
+
++-------------------------     STATE 48     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     bloquedecl :  DEFINE declaraciones ENDDEFINE^    (rule 3)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 3
+
+
++-------------------------     STATE 49     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+  declaraciones :  declaraciones declaracion^    (rule 28)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 28
+
+
++-------------------------     STATE 50     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+    declaracion :  tipodato DOS_PTOS^listaID 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+                : error
+
+              I : goto state 81
+        listaID : goto state 80
+
++-------------------------     STATE 51     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     sentencias :  sentencias^sentencia 
+      sentencia :  IF condicions sentencias^$$6 ELSE sentencias ENDIF 
+      sentencia :  IF condicions sentencias^ENDIF 
+            $$6 : ^    (rule 6)
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+          ENDIF : shift & new state 83
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : reduce by rule 6
+
+      sentencia : goto state 16
+            $$6 : goto state 82
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 52     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     sentencias :  sentencias^sentencia 
+      sentencia :  IF condicionc sentencias^$$9 ELSE sentencias ENDIF 
+      sentencia :  IF condicionc sentencias^ENDIF 
+            $$9 : ^    (rule 9)
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+          ENDIF : shift & new state 85
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : reduce by rule 9
+
+      sentencia : goto state 16
+            $$9 : goto state 84
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 53     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     condicionc :  comp_Li OP_AND^comp_Ld 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+         INLIST : shift & new state 28
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 32
+        comp_Ld : goto state 86
+      condicion : goto state 87
+        cond_Li : goto state 27
+      expresion : goto state 29
+        termino : goto state 30
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 54     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     condicionc :  comp_Li OP_OR^comp_Ld 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+         INLIST : shift & new state 28
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 32
+        comp_Ld : goto state 88
+      condicion : goto state 87
+        cond_Li : goto state 27
+      expresion : goto state 29
+        termino : goto state 30
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 55     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  cond_Li opercomp^cond_Ld 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 32
+        cond_Ld : goto state 89
+      expresion : goto state 90
+        termino : goto state 30
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 56     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       opercomp :  OP_COMP^    (rule 45)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 45
+
+
++-------------------------     STATE 57     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       opercomp :  OP_DIST^    (rule 46)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 46
+
+
++-------------------------     STATE 58     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       opercomp :  OP_MAYOR^    (rule 47)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 47
+
+
++-------------------------     STATE 59     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       opercomp :  OP_MENOR^    (rule 48)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 48
+
+
++-------------------------     STATE 60     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       opercomp :  OP_MEN_IG^    (rule 49)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 49
+
+
++-------------------------     STATE 61     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+       opercomp :  OP_MAY_IG^    (rule 50)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 50
+
+
++-------------------------     STATE 62     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  INLIST PAR_A^I COMA CORCH_A listactes CORCH_C PAR_C 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+                : error
+
+              I : goto state 91
+
++-------------------------     STATE 63     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      expresion :  expresion OP_MAS^termino 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 32
+        termino : goto state 92
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 64     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      expresion :  expresion OP_MENOS^termino 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 32
+        termino : goto state 93
+         factor : goto state 31
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 65     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        termino :  termino OP_MULT^factor 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 32
+         factor : goto state 94
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 66     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        termino :  termino OP_DIV^factor 
+
++ ACTIONS AND GOTOS:
+
+          PAR_A : shift & new state 34
+        CTE_STR : shift & new state 42
+             ID : shift & new state 14
+       CTE_REAL : shift & new state 40
+          TRUNC : shift & new state 36
+        CTE_INT : shift & new state 41
+          ROUND : shift & new state 35
+                : error
+
+              I : goto state 32
+         factor : goto state 95
+      constante : goto state 33
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 67     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      expresion :  expresion^OP_MAS termino 
+      expresion :  expresion^OP_MENOS termino 
+         factor :  PAR_A expresion^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+       OP_MENOS : shift & new state 64
+          PAR_C : shift & new state 96
+         OP_MAS : shift & new state 63
+                : error
+
+
++-------------------------     STATE 68     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  ROUND PAR_A^I PAR_C 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+                : error
+
+              I : goto state 97
+
++-------------------------     STATE 69     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  TRUNC PAR_A^I PAR_C 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+                : error
+
+              I : goto state 98
+
++-------------------------     STATE 70     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  WHILE condicions $$12^sentencias ENDWHILE 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+     sentencias : goto state 99
+      sentencia : goto state 5
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 71     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  WHILE condicionc $$14^sentencias ENDWHILE 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+     sentencias : goto state 100
+      sentencia : goto state 5
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 72     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  RENAME PAR_A I^COMA I PAR_C 
+
++ ACTIONS AND GOTOS:
+
+           COMA : shift & new state 101
+                : error
+
+
++-------------------------     STATE 73     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     asignacion :  I OP_ASIGN expresion^    (rule 31)
+      expresion :  expresion^OP_MAS termino 
+      expresion :  expresion^OP_MENOS termino 
+
++ ACTIONS AND GOTOS:
+
+       OP_MENOS : shift & new state 64
+         OP_MAS : shift & new state 63
+                : reduce by rule 31
+
+
++-------------------------     STATE 74     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+ asignacionmult :  I OP_ASIGN asignacion^    (rule 33)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 33
+
+
++-------------------------     STATE 75     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     asignacion :  I^OP_ASIGN expresion 
+ asignacionmult :  I^OP_ASIGN asignacion 
+         factor :  I^    (rule 40)
+
++ ACTIONS AND GOTOS:
+
+       OP_ASIGN : shift & new state 46
+                : reduce by rule 40
+
+
++-------------------------     STATE 76     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A CS^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_C : shift & new state 102
+                : error
+
+
++-------------------------     STATE 77     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A I^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_C : shift & new state 103
+                : error
+
+
++-------------------------     STATE 78     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A C^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_C : shift & new state 104
+                : error
+
+
++-------------------------     STATE 79     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A CE^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_C : shift & new state 105
+                : error
+
+
++-------------------------     STATE 80     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+    declaracion :  tipodato DOS_PTOS listaID^    (rule 30)
+        listaID :  listaID^COMA I 
+
++ ACTIONS AND GOTOS:
+
+           COMA : shift & new state 106
+                : reduce by rule 30
+
+
++-------------------------     STATE 81     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        listaID :  I^    (rule 51)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 51
+
+
++-------------------------     STATE 82     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicions sentencias $$6^ELSE sentencias ENDIF 
+
++ ACTIONS AND GOTOS:
+
+           ELSE : shift & new state 107
+                : error
+
+
++-------------------------     STATE 83     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicions sentencias ENDIF^    (rule 8)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 8
+
+
++-------------------------     STATE 84     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicionc sentencias $$9^ELSE sentencias ENDIF 
+
++ ACTIONS AND GOTOS:
+
+           ELSE : shift & new state 108
+                : error
+
+
++-------------------------     STATE 85     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicionc sentencias ENDIF^    (rule 11)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 11
+
+
++-------------------------     STATE 86     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     condicionc :  comp_Li OP_AND comp_Ld^    (rule 20)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 20
+
+
++-------------------------     STATE 87     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        comp_Ld :  condicion^    (rule 23)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 23
+
+
++-------------------------     STATE 88     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     condicionc :  comp_Li OP_OR comp_Ld^    (rule 21)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 21
+
+
++-------------------------     STATE 89     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  cond_Li opercomp cond_Ld^    (rule 24)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 24
+
+
++-------------------------     STATE 90     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        cond_Ld :  expresion^    (rule 27)
+      expresion :  expresion^OP_MAS termino 
+      expresion :  expresion^OP_MENOS termino 
+
++ ACTIONS AND GOTOS:
+
+       OP_MENOS : shift & new state 64
+         OP_MAS : shift & new state 63
+                : reduce by rule 27
+
+
++-------------------------     STATE 91     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  INLIST PAR_A I^COMA CORCH_A listactes CORCH_C PAR_C 
+
++ ACTIONS AND GOTOS:
+
+           COMA : shift & new state 109
+                : error
+
+
++-------------------------     STATE 92     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      expresion :  expresion OP_MAS termino^    (rule 34)
+        termino :  termino^OP_MULT factor 
+        termino :  termino^OP_DIV factor 
+
++ ACTIONS AND GOTOS:
+
+        OP_MULT : shift & new state 65
+         OP_DIV : shift & new state 66
+                : reduce by rule 34
+
+
++-------------------------     STATE 93     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      expresion :  expresion OP_MENOS termino^    (rule 35)
+        termino :  termino^OP_MULT factor 
+        termino :  termino^OP_DIV factor 
+
++ ACTIONS AND GOTOS:
+
+        OP_MULT : shift & new state 65
+         OP_DIV : shift & new state 66
+                : reduce by rule 35
+
+
++-------------------------     STATE 94     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        termino :  termino OP_MULT factor^    (rule 37)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 37
+
+
++-------------------------     STATE 95     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        termino :  termino OP_DIV factor^    (rule 38)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 38
+
+
++-------------------------     STATE 96     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  PAR_A expresion PAR_C^    (rule 42)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 42
+
+
++-------------------------     STATE 97     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  ROUND PAR_A I^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_C : shift & new state 110
+                : error
+
+
++-------------------------     STATE 98     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  TRUNC PAR_A I^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_C : shift & new state 111
+                : error
+
+
++-------------------------     STATE 99     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     sentencias :  sentencias^sentencia 
+      sentencia :  WHILE condicions $$12 sentencias^ENDWHILE 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+       ENDWHILE : shift & new state 112
+          PRINT : shift & new state 13
+                : error
+
+      sentencia : goto state 16
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 100     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     sentencias :  sentencias^sentencia 
+      sentencia :  WHILE condicionc $$14 sentencias^ENDWHILE 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+       ENDWHILE : shift & new state 113
+          PRINT : shift & new state 13
+                : error
+
+      sentencia : goto state 16
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 101     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  RENAME PAR_A I COMA^I PAR_C 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+                : error
+
+              I : goto state 114
+
++-------------------------     STATE 102     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A CS PAR_C^    (rule 58)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 58
+
+
++-------------------------     STATE 103     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A I PAR_C^    (rule 59)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 59
+
+
++-------------------------     STATE 104     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A C PAR_C^    (rule 60)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 60
+
+
++-------------------------     STATE 105     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         output :  PRINT PAR_A CE PAR_C^    (rule 61)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 61
+
+
++-------------------------     STATE 106     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        listaID :  listaID COMA^I 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+                : error
+
+              I : goto state 115
+
++-------------------------     STATE 107     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicions sentencias $$6 ELSE^sentencias ENDIF 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+     sentencias : goto state 116
+      sentencia : goto state 5
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 108     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicionc sentencias $$9 ELSE^sentencias ENDIF 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+     sentencias : goto state 117
+      sentencia : goto state 5
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 109     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  INLIST PAR_A I COMA^CORCH_A listactes CORCH_C PAR_C 
+
++ ACTIONS AND GOTOS:
+
+        CORCH_A : shift & new state 118
+                : error
+
+
++-------------------------     STATE 110     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  ROUND PAR_A I PAR_C^    (rule 43)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 43
+
+
++-------------------------     STATE 111     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+         factor :  TRUNC PAR_A I PAR_C^    (rule 44)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 44
+
+
++-------------------------     STATE 112     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  WHILE condicions $$12 sentencias ENDWHILE^    (rule 13)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 13
+
+
++-------------------------     STATE 113     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  WHILE condicionc $$14 sentencias ENDWHILE^    (rule 15)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 15
+
+
++-------------------------     STATE 114     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  RENAME PAR_A I COMA I^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_C : shift & new state 119
+                : error
+
+
++-------------------------     STATE 115     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+        listaID :  listaID COMA I^    (rule 52)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 52
+
+
++-------------------------     STATE 116     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     sentencias :  sentencias^sentencia 
+      sentencia :  IF condicions sentencias $$6 ELSE sentencias^ENDIF 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+          ENDIF : shift & new state 120
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+      sentencia : goto state 16
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 117     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+     sentencias :  sentencias^sentencia 
+      sentencia :  IF condicionc sentencias $$9 ELSE sentencias^ENDIF 
+
++ ACTIONS AND GOTOS:
+
+             ID : shift & new state 14
+             IF : shift & new state 6
+          ENDIF : shift & new state 121
+         RENAME : shift & new state 8
+          WHILE : shift & new state 7
+          PRINT : shift & new state 13
+                : error
+
+      sentencia : goto state 16
+              I : goto state 11
+     asignacion : goto state 9
+         output : goto state 10
+ asignacionmult : goto state 12
+
++-------------------------     STATE 118     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  INLIST PAR_A I COMA CORCH_A^listactes CORCH_C PAR_C 
+
++ ACTIONS AND GOTOS:
+
+        CTE_STR : shift & new state 42
+       CTE_REAL : shift & new state 40
+        CTE_INT : shift & new state 41
+                : error
+
+      listactes : goto state 122
+      constante : goto state 123
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 119     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  RENAME PAR_A I COMA I PAR_C^    (rule 16)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 16
+
+
++-------------------------     STATE 120     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicions sentencias $$6 ELSE sentencias ENDIF^    (rule 7)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 7
+
+
++-------------------------     STATE 121     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      sentencia :  IF condicionc sentencias $$9 ELSE sentencias ENDIF^    (rule 10)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 10
+
+
++-------------------------     STATE 122     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  INLIST PAR_A I COMA CORCH_A listactes^CORCH_C PAR_C 
+      listactes :  listactes^COMA constante 
+
++ ACTIONS AND GOTOS:
+
+        CORCH_C : shift & new state 124
+           COMA : shift & new state 125
+                : error
+
+
++-------------------------     STATE 123     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      listactes :  constante^    (rule 56)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 56
+
+
++-------------------------     STATE 124     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  INLIST PAR_A I COMA CORCH_A listactes CORCH_C^PAR_C 
+
++ ACTIONS AND GOTOS:
+
+          PAR_C : shift & new state 126
+                : error
+
+
++-------------------------     STATE 125     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      listactes :  listactes COMA^constante 
+
++ ACTIONS AND GOTOS:
+
+        CTE_STR : shift & new state 42
+       CTE_REAL : shift & new state 40
+        CTE_INT : shift & new state 41
+                : error
+
+      constante : goto state 127
+             CS : goto state 39
+              C : goto state 37
+             CE : goto state 38
+
++-------------------------     STATE 126     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      condicion :  INLIST PAR_A I COMA CORCH_A listactes CORCH_C PAR_C^    (rule 25)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 25
+
+
++-------------------------     STATE 127     -------------------------+
+
++ CONFLICTS:
+
+
++ RULES:
+
+      listactes :  listactes COMA constante^    (rule 57)
+
++ ACTIONS AND GOTOS:
+
+                : reduce by rule 57
+
+
+====================      SUMMARY      ====================
+
+grammar description file = AS_V28.y
+number of terminals used =     51; limit =    600
+number of nonterminals   =     32; limit =    500
+number of grammar rules  =     69; limit =   2000
+number of states         =    128; limit =   2000
+number of s/r errors     =      0
+number of r/r errors     =      0
+number of working set    =     32; limit =    600
+memory for rules & stats =    999; limit =  20000
+memory for actions       =    263; limit =  20000
+number of lookahead sets =     60; limit =    600
+number of extra closures =     98
+number of shift entries  =    239
+number of exception ents =      1
+number of goto entries   =     85
+number of goto defaults  =    137
+optimization input       =    618; limit =  20000
+optimization output      =    317; limit =  20000
+number of table entries  =    317; zeros =     81
+maximum spread           =    305; offst =    290
+
+
+-*-=-*-=-*-=-*-=-*-         END OF TABLE         -*-=-*-=-*-=-*-=-*-
+
