@@ -4,4 +4,6 @@ project (SPRAK)
 
 configure_file(test/pruebagral.txt pruebagral.txt COPYONLY)
 
+add_definitions("-fpermissive")
+
 add_executable(Grupo05 la/la.c main_la.c)

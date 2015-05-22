@@ -22,7 +22,8 @@ int error = 0;            // para identificar si hubo o no error.
 int nroLinea = 1;         // Para identificar en que l�nea se produjo el error.
 int ptoInicio = 0;        // Para completar el nro segun corresponda EJ:.36 => 0.36
 int symbolTableIndex = 0;           // �ndice de la TOS
-
+int columnCount = 1;
+int rowCount = 1;
 //Variable global provisoria
 
 int yylval;
@@ -316,16 +317,13 @@ void None()
 /* CARACTER NO VALIDO ------------------------------------------------------- */
 void CharacterNotValid()
 {
-    if ( strcmp( token, "&" ) == 0 )
-        printf( "\n - ERROR: Se esperaba & \n" );
-
-    if ( strcmp( token, "|" ) == 0 )
-        printf( "\n - ERROR: Se esperaba | \n" );
-
     if ( strcmp( token, "." ) == 0 )
         printf( "\n - ERROR: Se esperaba un digito \n" );
 
-    printf( "\n - Analisis Lexico INTERRUMPIDO - %s\n", token );
+    if( readedChar != '/' )
+        printf( "\n - ERROR: Se esperaba una / para iniciar comentario ");
+
+    printf( "\n - Analisis Lexico INTERRUMPIDO - Carater NO VALIDO (Linea: %d, Columna: %d)\n", rowCount, columnCount );
     exit( 0 );
 }
 
@@ -640,6 +638,16 @@ void cleanToken()
 void readCharacter()
 {
     readedChar = fgetc( inputFile );
+
+    if( readedChar == '\n' )
+    {
+        rowCount++;
+        columnCount = 1;
+    }
+    else
+    {
+        columnCount++;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
