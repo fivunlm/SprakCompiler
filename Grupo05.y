@@ -90,6 +90,11 @@ ASIGNACION : ID OP_ASIG EXPRESION
     {
         insertInPolish(polishPosition++, TOS[$2].nombre);
         insertInPolish( polishPosition++,":=");
+    } |
+    ID OP_ASIG QEQUAL
+    {
+        insertInPolish(polishPosition++, TOS[$1].nombre);
+        insertInPolish( polishPosition++,":=");
     };
 
 EXPRESION : EXPRESION OP_SUMA TERMINO { insertInPolish( polishPosition++,"+"); }
@@ -179,7 +184,11 @@ QEQUAL : PR_QEQUAL OP_PABRE EXPRESION
         insertInPolish(polishPosition++, "@aux_qequal_counter");
         insertInPolish( polishPosition++,":=");
     } 
-    SEP_LISTA OP_CABRE LISTA_EXPRESIONES OP_CCIERRA OP_PCIERRA;
+    SEP_LISTA OP_CABRE LISTA_EXPRESIONES OP_CCIERRA OP_PCIERRA
+    {
+        insertInPolish(polishPosition++, "@aux_qequal_counter");
+    }
+    ;
 LISTA_EXPRESIONES : LISTA_EXPRESIONES SEP_LISTA EXPRESION 
     {
         insertInPolish(polishPosition++, "@aux_qequal");
@@ -206,7 +215,20 @@ LISTA_EXPRESIONES : LISTA_EXPRESIONES SEP_LISTA EXPRESION
     }
     ; 
 
-UNARYIF : ID OP_ASIG CONDICIONES OP_INT VALOR SEP_LISTA VALOR;
+UNARYIF : ID OP_ASIG CONDICIONES OP_INT VALOR
+    {
+        insertInPolish(polishPosition++, TOS[$1].nombre);
+        insertInPolish(polishPosition++, ":=");
+    } 
+    SEP_LISTA 
+    {
+        insertIntInPolish(pop(&polishStack), polishPosition);
+    }
+    VALOR
+    {
+        insertInPolish(polishPosition++, TOS[$1].nombre);
+        insertInPolish(polishPosition++, ":=");
+    } ;
 VALOR : UNARYIF | EXPRESION | CTE_STRING;
 
 
@@ -1618,7 +1640,7 @@ void analizeToFile( char * fileToAnalize )
             exit( 1 );
         }
 
-        showTOS();
+        /*showTOS();*/
 
         if ( fclose( tosFile ) != 0 )
         {
@@ -1690,9 +1712,9 @@ int main (int argc, char *argv[])
 
         printf( "\n - Tira POLACA: - \n" );
         mostrar_polaca();
-        showTOS();
+        /*showTOS();
         stack_print(&polishStack);
-
+*/
         if ( fclose( tosFile ) != 0 )
         {
             printf( "No se puede CERRAR el archivo de la tabla de tos" );
