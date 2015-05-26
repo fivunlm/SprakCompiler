@@ -85,17 +85,29 @@ ASIGNACION : ID OP_ASIG EXPRESION
     { 
         insertInPolish(polishPosition++, TOS[$2].nombre);
         insertInPolish( polishPosition++,":=");
-    } | ID OP_ASIG CONCATENACION;
+    } | 
+    ID OP_ASIG CONCATENACION
+    {
+        insertInPolish(polishPosition++, TOS[$2].nombre);
+        insertInPolish( polishPosition++,":=");
+    };
 
 EXPRESION : EXPRESION OP_SUMA TERMINO { insertInPolish( polishPosition++,"+"); }
     | EXPRESION OP_RESTA TERMINO { insertInPolish( polishPosition++,"-"); } | TERMINO;
-TERMINO : TERMINO OP_MULTIPLI FACTOR | TERMINO OP_DIVISION FACTOR | FACTOR;
+TERMINO : TERMINO OP_MULTIPLI FACTOR { insertInPolish( polishPosition++,"*"); } 
+    | TERMINO OP_DIVISION FACTOR { insertInPolish( polishPosition++,"/"); } | FACTOR;
 FACTOR : ID { insertInPolish(polishPosition++, TOS[$1].nombre); }
     | CTE_ENT { insertInPolish(polishPosition++, TOS[$1].nombre); } 
     | CTE_REAL { insertInPolish(polishPosition++, TOS[$1].nombre); } 
     | OP_PABRE EXPRESION OP_PCIERRA;
 
-CONCATENACION : CTE_STRING OP_CONCAT CTE_STRING | CTE_STRING OP_CONCAT ID | ID OP_CONCAT CTE_STRING | ID OP_CONCAT ID;
+CONCATENACION : STR OP_CONCAT STR 
+    {
+        insertInPolish(polishPosition++, TOS[$1].nombre);
+        insertInPolish(polishPosition++, TOS[$3].nombre);
+        insertInPolish(polishPosition++, "++");
+    };
+STR : CTE_STRING | ID;
 
 IF: PR_IF OP_PABRE CONDICIONES 
     OP_PCIERRA LISTA_SENTENCIAS ENDIF;
@@ -159,8 +171,40 @@ GET : PR_GET ID
         insertInPolish(polishPosition++, "GET");
     }; 
 
-QEQUAL : PR_QEQUAL OP_PABRE EXPRESION SEP_LISTA LISTA_EXPRESIONES OP_PCIERRA;
-LISTA_EXPRESIONES : LISTA_EXPRESIONES SEP_COMMA EXPRESION | EXPRESION; 
+QEQUAL : PR_QEQUAL OP_PABRE EXPRESION 
+    { 
+        insertInPolish(polishPosition++, "@aux_qequal");
+        insertInPolish( polishPosition++,":=");
+        insertInPolish(polishPosition++, "0");
+        insertInPolish(polishPosition++, "@aux_qequal_counter");
+        insertInPolish( polishPosition++,":=");
+    } 
+    SEP_LISTA OP_CABRE LISTA_EXPRESIONES OP_CCIERRA OP_PCIERRA;
+LISTA_EXPRESIONES : LISTA_EXPRESIONES SEP_LISTA EXPRESION 
+    {
+        insertInPolish(polishPosition++, "@aux_qequal");
+        insertInPolish( polishPosition++,"CMP");
+        insertIntInPolish( polishPosition++, polishPosition + 7);
+        insertInPolish(polishPosition++, "BNE");
+        insertInPolish(polishPosition++, "@aux_qequal_counter");
+        insertInPolish(polishPosition++, "1");
+        insertInPolish( polishPosition++,"+");
+        insertInPolish(polishPosition++, "@aux_qequal_counter");
+        insertInPolish( polishPosition++,":=");
+    }
+    | EXPRESION
+    {
+        insertInPolish(polishPosition++, "@aux_qequal");
+        insertInPolish( polishPosition++,"CMP");
+        insertIntInPolish( polishPosition++, polishPosition + 7);
+        insertInPolish(polishPosition++, "BNE");
+        insertInPolish(polishPosition++, "@aux_qequal_counter");
+        insertInPolish(polishPosition++, "1");
+        insertInPolish( polishPosition++,"+");
+        insertInPolish(polishPosition++, "@aux_qequal_counter");
+        insertInPolish( polishPosition++,":=");
+    }
+    ; 
 
 UNARYIF : ID OP_ASIG CONDICIONES OP_INT VALOR SEP_LISTA VALOR;
 VALOR : UNARYIF | EXPRESION | CTE_STRING;
