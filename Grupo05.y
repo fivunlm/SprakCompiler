@@ -97,34 +97,34 @@ FACTOR : ID { insertInPolish(polishPosition++, TOS[$1].nombre); }
 
 CONCATENACION : CTE_STRING OP_CONCAT CTE_STRING | CTE_STRING OP_CONCAT ID | ID OP_CONCAT CTE_STRING | ID OP_CONCAT ID;
 
-IF: PR_IF OP_PABRE CONDICIONES { insertInPolish( polishPosition++, "CMP");
-                                 push(&polishStack, polishPosition);
-                                 polishPosition++;
-                                insertInPolish(polishPosition++, branch_op); } 
+IF: PR_IF OP_PABRE CONDICIONES 
     OP_PCIERRA LISTA_SENTENCIAS ENDIF;
 
 ENDIF : PR_ELSE {
-        char aux[50];
-        sprintf(aux, "%d", polishPosition+2);
-        insertInPolish(pop(&polishStack), aux);
+        insertIntInPolish(pop(&polishStack), polishPosition+2);
         push(&polishStack, polishPosition);
         stack_print(&polishStack);
         polishPosition++;
         insertInPolish(polishPosition++, "BI");
     } LISTA_SENTENCIAS PR_ENDIF {
-        char aux[50];
-        sprintf(aux, "%d", polishPosition);
-        insertInPolish(pop(&polishStack), aux);
-        stack_print(&polishStack);
+        /*printf("ENDIF (ELSE)\n");
+        stack_print(&polishStack);*/
+
+        insertIntInPolish(pop(&polishStack), polishPosition);    
     } | PR_ENDIF {
-        char aux[50];
-        sprintf(aux, "%d", polishPosition);
-        insertInPolish(pop(&polishStack), aux);
-        stack_print(&polishStack);
+        /*stack_print(&polishStack);*/
+        insertIntInPolish(pop(&polishStack), polishPosition);    
     } ;
 
-CONDICIONES : CONDICION PR_AND CONDICION | CONDICION PR_OR CONDICION | PR_NOT CONDICION | CONDICION;
-CONDICION:  COND_LI COMP COND_LD |
+CONDICIONES : CONDICION PR_AND CONDICION  
+            | CONDICION PR_OR CONDICION | PR_NOT CONDICION | CONDICION;
+CONDICION:  COND_LI COMP COND_LD  
+            { 
+                insertInPolish( polishPosition++, "CMP");
+                push(&polishStack, polishPosition++);
+                insertInPolish(polishPosition++, branch_op); 
+            } 
+            |
             OP_PABRE CONDICION OP_PCIERRA;
 
 COND_LI: EXPRESION;
@@ -136,7 +136,16 @@ COMP: OP_MAYOR { strcpy(branch_op, "BLE"); }
     | OP_IGUAL { strcpy(branch_op, "BNE"); } 
     | OP_DISTINTO { strcpy(branch_op, "BEQ"); };
 
-WHILE : PR_WHILE OP_PABRE CONDICIONES OP_PCIERRA LISTA_SENTENCIAS PR_ENDWHILE;
+WHILE : PR_WHILE
+        { push(&polishStack, polishPosition); } 
+        OP_PABRE CONDICIONES
+        OP_PCIERRA LISTA_SENTENCIAS PR_ENDWHILE
+        {
+            /*stack_print(&polishStack);*/
+            insertIntInPolish(pop(&polishStack), polishPosition+2);
+            insertIntInPolish(polishPosition++, pop(&polishStack));
+            insertInPolish(polishPosition++, "BI");
+        };
 
 PUT : PR_PUT OUT 
     { 
@@ -282,6 +291,7 @@ char polishTokens[10000][60];
 Stack polishStack;
 int cont_exp = 0;
 
+
 void insertInPolish( int pos, char * data )
 {
     strcpy(polishTokens[pos], data);
@@ -298,7 +308,7 @@ void mostrar_polaca()
 {
     for( int i =0 ; i<=polishPosition ; i++)
     {
-        printf("%d: %s, ", i, polishTokens[i]);
+        printf("%03d: %s\n", i, polishTokens[i]);
     }
 }
 
