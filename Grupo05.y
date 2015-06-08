@@ -118,19 +118,18 @@ IF: PR_IF OP_PABRE CONDICIONES
     OP_PCIERRA LISTA_SENTENCIAS ENDIF;
 
 ENDIF : PR_ELSE {
-        insertIntInPolish(pop(&polishStack), polishPosition+2);
+        while(polishStack.top != 0)
+            insertIntInPolish(pop(&polishStack), polishPosition+2);    
+        
         push(&polishStack, polishPosition);
         stack_print(&polishStack);
         polishPosition++;
         insertInPolish(polishPosition++, "BI");
     } LISTA_SENTENCIAS PR_ENDIF {
-        /*printf("ENDIF (ELSE)\n");
-        stack_print(&polishStack);*/
-
-        insertIntInPolish(pop(&polishStack), polishPosition);    
+        insertIntInPolish(pop(&polishStack), polishPosition);     
     } | PR_ENDIF {
-        /*stack_print(&polishStack);*/
-        insertIntInPolish(pop(&polishStack), polishPosition);    
+        while(polishStack.top != 0)
+            insertIntInPolish(pop(&polishStack), polishPosition);    
     } ;
 
 CONDICIONES : CONDICION PR_AND CONDICION  
@@ -229,7 +228,7 @@ UNARYIF : ID OP_ASIG CONDICIONES OP_INT VALOR
         insertInPolish(polishPosition++, TOS[$1].nombre);
         insertInPolish(polishPosition++, ":=");
     } ;
-VALOR : UNARYIF | EXPRESION | CTE_STRING;
+VALOR : EXPRESION | CTE_STRING;
 
 
 %%
